@@ -34,3 +34,5 @@ git pull origin main
 
 Se o branch principal for master:
 git pull origin master
+
+APOS BAIXAR, VCS DAO UM npm install ou npm i para instalar as dependencias :)
