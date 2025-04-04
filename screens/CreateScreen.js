@@ -13,18 +13,20 @@ const CreateScreen = ({ navigation }) => {
 
   const handleSignUp = async () => {
     if (!name || !email || !password || !confirmPassword) {
-      setError('Todos os campos são obrigatórios.');
+      setError('Preenche tudo aí, pô!');
       return;
     }
 
     if (password !== confirmPassword) {
-      setError('As senhas não coincidem.');
+      setError('As senhas tão diferentes, ajeita isso.');
       return;
     }
 
     setLoading(true);
     setError('');
 
+    // Simulação da chamada de API (comentado porque não temos o backend ainda)
+    /* 
     try {
       const response = await fetch('https://sua-api-backend.com/create', {
         method: 'POST',
@@ -44,10 +46,17 @@ const CreateScreen = ({ navigation }) => {
       }
     } catch (err) {
       console.error('Erro na API:', err);
-      setError('Erro ao se conectar com o servidor');
+      setError('Deu ruim ao conectar no servidor.');
     } finally {
       setLoading(false);
     }
+    */
+
+    setTimeout(() => {
+      console.log('Cadastro simulado!');
+      navigation.navigate('Login');
+      setLoading(false);
+    }, 2000);
   };
 
   return (
@@ -107,7 +116,7 @@ const CreateScreen = ({ navigation }) => {
         </View>
 
         <TouchableOpacity onPress={() => navigation.navigate('Login')}>
-          <Text style={styles.signUpLink}>Já tem uma conta? Faça login.</Text>
+          <Text style={styles.signUpLink}>Já tem uma conta? Então faz login.</Text>
         </TouchableOpacity>
 
         <Text style={styles.footerText}>Todos os direitos reservados - Equipe SalaFacil</Text>

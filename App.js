@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect } from 'react'; 
 import { SafeAreaView, StatusBar, Text, View, Image } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient'; 
 import { NavigationContainer } from '@react-navigation/native';
@@ -7,8 +7,18 @@ import styles from './styles/globalStyle';
 import logo from './assets/logo.png';
 import LoginScreen from './screens/LoginScreen';
 import CreateScreen from './screens/CreateScreen';
+import HomeScreen from './screens/HomeScreen';
+import RoomsScreen from './screens/RoomsScreen';
+import LabDetailsScreen from './screens/LabDetailsScreen ';
+import AgendamentoScreen from './screens/AgendamentoScreen';
+import ResetPasswordScreen from './screens/ResetPasswordScreen.js';
+import AppointmentsScreen from './screens/AppointmentsScreen.js';
+import ProfileScreen from './screens/ProfileScreen';
+import EditAppointmentScreen from '../ProjetoMobile/screens/EditAppointMentsScreen.js';
+import AboutAppScreen from '../ProjetoMobile/screens/AboutAppScreen.js';
+import CategoryDetails from '../ProjetoMobile/screens/CategoryDetailsScreen.js';
+import LabsOverviewScreen from '../ProjetoMobile/screens/LabsOverviewScreen.js';
 
-// Tela de SplashScreen
 const SplashScreen = ({ navigation }) => {
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -17,6 +27,7 @@ const SplashScreen = ({ navigation }) => {
 
     return () => clearTimeout(timer);
   }, [navigation]);
+
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
@@ -58,10 +69,66 @@ const App = () => {
           component={CreateScreen} 
           options={{ headerShown: false }}  
         />
+        <Stack.Screen
+          name="Home"
+          component={HomeScreen}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="Rooms"
+          component={RoomsScreen}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="LabDetails"
+          component={LabDetailsScreen}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="Agendamento"
+          component={AgendamentoScreen}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="Password"
+          component={ResetPasswordScreen}
+          options={{ headerShown: false }}
+        />
+
+        <Stack.Screen
+        name="Appointments"
+        component={AppointmentsScreen}
+        options={{ headerShown: false}}
+        />
+      <Stack.Screen
+      name='Profile'
+      component={ProfileScreen}
+      options={{ headerShown: false}}
+      />
+      <Stack.Screen
+      name='EditAppointMent'
+      component={EditAppointmentScreen}
+      options={{ headerShown: false}}
+      />
+      <Stack.Screen
+      name='AboutApp'
+      component={AboutAppScreen}
+      options={{ headerShown: false}}
+      />
+      <Stack.Screen
+      name='CategoryDetails'
+      component={CategoryDetails}
+      options={{ headerShown: false}}
+      />
+      <Stack.Screen
+      name='LabsOverview'
+      component={LabsOverviewScreen}
+      options={{ headerShown: false}}
+      />
       </Stack.Navigator>
+
     </NavigationContainer>
   );
 };
-
 
 export default App;

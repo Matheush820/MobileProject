@@ -21,23 +21,30 @@ const LoginScreen = ({ navigation }) => {
     setLoading(true);
     setError('');
 
+    // Login fake só pra testar
+    if (email === 'teste@sala.com' && password === '123456') {
+      console.log('Login fake bem-sucedido');
+      navigation.navigate('Home');
+      setLoading(false);
+      return;
+    }
+
+    /*** Chamando o back (ainda não tem, então tá comentado) ***/
+    /*
     try {
       const response = await fetch('https://sua-api-backend.com/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          email: email,
-          password: password,
-        }),
+        body: JSON.stringify({ email, password }),
       });
 
       const data = await response.json();
 
       if (response.ok) {
         console.log('Login bem-sucedido', data);
-      
+        navigation.navigate('Home');
       } else {
         setError(data.message || 'Erro ao fazer login');
       }
@@ -47,11 +54,11 @@ const LoginScreen = ({ navigation }) => {
     } finally {
       setLoading(false);
     }
+    */
   };
 
-  const handleSignUp = () => {
-    navigation.navigate('Create');  // Navegação para a tela de criação de conta
-  };
+  const handleSignUp = () => navigation.navigate('Create');
+  const handleResetPassword = () => navigation.navigate('Password');
 
   const validateEmail = (email) => {
     const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -97,16 +104,15 @@ const LoginScreen = ({ navigation }) => {
               value={password}
               onChangeText={setPassword}
             />
-            <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
-              <Ionicons
-                name={showPassword ? 'eye-off' : 'eye'}
-                size={24}
-                color="#aaa"
-              />
+            <TouchableOpacity onPress={() => setShowPassword(!showPassword)} style={styles.eyeIcon}>
+              <Ionicons name={showPassword ? 'eye-off' : 'eye'} size={24} color="#aaa" />
             </TouchableOpacity>
           </View>
         </View>
 
+        <TouchableOpacity onPress={handleResetPassword}>
+          <Text style={styles.forgotPassword}>Esqueceu a senha?</Text>
+        </TouchableOpacity>
         {error ? <Text style={styles.errorText}>{error}</Text> : null}
         {loading && <ActivityIndicator size="large" color="#00C896" />}
 
@@ -123,7 +129,8 @@ const LoginScreen = ({ navigation }) => {
         <TouchableOpacity onPress={handleSignUp}>
           <Text style={styles.signUpLink}>Não tem conta? Clique aqui para se cadastrar.</Text>
         </TouchableOpacity>
-        <Text style={styles.forgotPassword}>Esqueceu a senha?</Text>
+
+
         <Text style={styles.footerText}>Todos os direitos reservados - Equipe SalaFacil</Text>
       </LinearGradient>
     </SafeAreaView>

@@ -1,4 +1,4 @@
-import { StyleSheet } from 'react-native';
+import { StyleSheet } from 'react-native'; 
 
 export default StyleSheet.create({
   container: {
@@ -6,18 +6,19 @@ export default StyleSheet.create({
   },
   topSection: {
     height: '40%',
-    backgroundColor: '#F6EEEE',
     borderBottomLeftRadius: 40,
     borderBottomRightRadius: 40,
     justifyContent: 'center',
     alignItems: 'center',
-    background: 'linear-gradient(180deg, rgba(246,238,238,1) 0%, rgba(0,198,150,1) 100%)',
+    backgroundColor: '#F7F1F1', // Cor de fundo fixa para evitar erro de gradiente
     padding: 20,
+    elevation: 6, // Sombra para Android
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.2,
     shadowRadius: 6,
   },
+  
   logoContainer: {
     alignItems: 'center',
     transform: [{ scale: 1.2 }],
@@ -45,7 +46,7 @@ export default StyleSheet.create({
   },
   logoSubText: {
     fontSize: 22,
-    color: '#00C896',
+    color: '#1D4C77',
     fontStyle: 'italic',
     transform: [{ scale: 1.05 }],
   },
@@ -69,13 +70,23 @@ export default StyleSheet.create({
     borderRadius: 10,
     paddingHorizontal: 15,
     height: 50,
-    marginBottom: 20,
+    marginBottom: 5, // Reduzi o espaçamento antes do "Esqueceu a senha?"
   },
   inputPassword: {
     flex: 1,
     fontSize: 16,
     color: '#333',
   },
+  forgotPassword: {
+    marginTop: 10,
+    color: '#FFF',
+    fontSize: 14,
+    textDecorationLine: 'underline',
+    textAlign: 'left', 
+    alignSelf: 'flex-start', 
+    marginLeft: 25, 
+  },
+  
   buttonContainer: {
     justifyContent: 'center',
     marginTop: 20,
@@ -98,13 +109,6 @@ export default StyleSheet.create({
     color: '#FFF',
     fontSize: 18,
     fontWeight: 'bold',
-  },
-  forgotPassword: {
-    marginTop: 20,
-    color: '#FFF',
-    fontSize: 14,
-    textDecorationLine: 'underline',
-    textAlign: 'center',
   },
   signUpLink: {
     marginTop: 23,
