@@ -5,6 +5,8 @@ import com.salafacil.SalaFacilSpace.entity.Professor;
 import com.salafacil.SalaFacilSpace.repository.ProfessorRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -27,6 +29,14 @@ public class ProfessorService {
         Professor professor = professorRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Professor não encontrado"));
         return toDTO(professor);
+    }
+
+    // Novo método para listar todos os professores
+    public List<ProfessorDTO> listarTodos() {
+        List<Professor> professores = professorRepository.findAll();
+        return professores.stream()
+                          .map(this::toDTO)  // Converte cada Professor para ProfessorDTO
+                          .collect(Collectors.toList());
     }
 
     private ProfessorDTO toDTO(Professor professor) {
