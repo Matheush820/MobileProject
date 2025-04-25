@@ -78,6 +78,14 @@
 			<artifactId>spring-security-test</artifactId>
 			<scope>test</scope>
 		</dependency>
+
+		<!-- Dependência do Swagger 3 -->
+		<dependency>
+			<groupId>io.springfox</groupId>
+			<artifactId>springfox-boot-starter</artifactId>
+			<version>3.0.0</version> <!-- Usando a versão mais atual -->
+		</dependency>
+
 	</dependencies>
 
 	<build>

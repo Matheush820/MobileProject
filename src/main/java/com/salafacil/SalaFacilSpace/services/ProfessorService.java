@@ -7,6 +7,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.stream.Collectors;
+import com.salafacil.SalaFacilSpace.services.ProfessorService;
+
 
 @Service
 @RequiredArgsConstructor
@@ -31,12 +33,30 @@ public class ProfessorService {
         return toDTO(professor);
     }
 
-    // Novo método para listar todos os professores
     public List<ProfessorDTO> listarTodos() {
         List<Professor> professores = professorRepository.findAll();
         return professores.stream()
-                          .map(this::toDTO)  // Converte cada Professor para ProfessorDTO
+                          .map(this::toDTO)
                           .collect(Collectors.toList());
+    }
+
+    public ProfessorDTO atualizar(Long id, ProfessorDTO dto) {
+        Professor professor = professorRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Professor não encontrado com ID: " + id));
+
+        professor.setNome(dto.getNome());
+        professor.setEmail(dto.getEmail());
+        professor.setMatricula(dto.getMatricula());
+        // A senha não é alterada aqui — pode adaptar se quiser permitir
+
+        Professor atualizado = professorRepository.save(professor);
+        return toDTO(atualizado);
+    }
+    
+    public void deletar(Long id) {
+        Professor professor = professorRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Professor não encontrado com id: " + id));
+        professorRepository.delete(professor);
     }
 
     private ProfessorDTO toDTO(Professor professor) {

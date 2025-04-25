@@ -3,12 +3,7 @@ package com.salafacil.SalaFacilSpace.controller;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.salafacil.SalaFacilSpace.dto.ProfessorDTO;
 import com.salafacil.SalaFacilSpace.services.ProfessorService;
@@ -33,9 +28,19 @@ public class ProfessorController {
         return ResponseEntity.ok(professorService.buscarPorId(id));
     }
 
-    // Novo método para listar todos os professores
     @GetMapping
     public ResponseEntity<List<ProfessorDTO>> listarTodos() {
         return ResponseEntity.ok(professorService.listarTodos());
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<ProfessorDTO> atualizar(@PathVariable Long id, @RequestBody @Valid ProfessorDTO dto) {
+        return ResponseEntity.ok(professorService.atualizar(id, dto));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deletar(@PathVariable Long id) {
+        professorService.deletar(id);
+        return ResponseEntity.noContent().build();
     }
 }
