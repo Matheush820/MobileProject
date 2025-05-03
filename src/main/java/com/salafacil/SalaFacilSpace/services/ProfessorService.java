@@ -3,12 +3,12 @@ package com.salafacil.SalaFacilSpace.services;
 import com.salafacil.SalaFacilSpace.dto.ProfessorDTO;
 import com.salafacil.SalaFacilSpace.entity.Professor;
 import com.salafacil.SalaFacilSpace.repository.ProfessorRepository;
+import com.salafacil.SalaFacilSpace.exception.ProfessorNotFoundException; // <-- IMPORTANTE!
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
 import java.util.List;
 import java.util.stream.Collectors;
-import com.salafacil.SalaFacilSpace.services.ProfessorService;
-
 
 @Service
 @RequiredArgsConstructor
@@ -29,7 +29,7 @@ public class ProfessorService {
 
     public ProfessorDTO buscarPorId(Long id) {
         Professor professor = professorRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Professor não encontrado"));
+                .orElseThrow(() -> new ProfessorNotFoundException(id)); // 👈 Atualizado aqui!
         return toDTO(professor);
     }
 
@@ -42,12 +42,11 @@ public class ProfessorService {
 
     public ProfessorDTO atualizar(Long id, ProfessorDTO dto) {
         Professor professor = professorRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Professor não encontrado com ID: " + id));
+                .orElseThrow(() -> new ProfessorNotFoundException(id)); // 👈 Atualizado aqui!
 
         professor.setNome(dto.getNome());
         professor.setEmail(dto.getEmail());
         professor.setMatricula(dto.getMatricula());
-        // A senha não é alterada aqui — pode adaptar se quiser permitir
 
         Professor atualizado = professorRepository.save(professor);
         return toDTO(atualizado);
@@ -55,7 +54,7 @@ public class ProfessorService {
     
     public void deletar(Long id) {
         Professor professor = professorRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("Professor não encontrado com id: " + id));
+            .orElseThrow(() -> new ProfessorNotFoundException(id)); // 👈 Atualizado aqui!
         professorRepository.delete(professor);
     }
 
