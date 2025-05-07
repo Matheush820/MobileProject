@@ -15,13 +15,14 @@ import java.util.stream.Collectors;
 public class ProfessorService {
 
     private final ProfessorRepository professorRepository;
-
+    private final PasswordService passwordService;
+    
     public ProfessorDTO criar(ProfessorDTO dto, String senhaPadrao) {
         Professor professor = new Professor();
         professor.setNome(dto.getNome());
         professor.setEmail(dto.getEmail());
-        professor.setMatricula(dto.getMatricula());
-        professor.setSenha(senhaPadrao); // Em produção, usar criptografia
+        professor.setSenha(passwordService.encodePassword(senhaPadrao));
+
         
         Professor professorSalvo = professorRepository.save(professor);
         return toDTO(professorSalvo);
@@ -46,7 +47,6 @@ public class ProfessorService {
 
         professor.setNome(dto.getNome());
         professor.setEmail(dto.getEmail());
-        professor.setMatricula(dto.getMatricula());
 
         Professor atualizado = professorRepository.save(professor);
         return toDTO(atualizado);
@@ -63,7 +63,6 @@ public class ProfessorService {
         dto.setId(professor.getId());
         dto.setNome(professor.getNome());
         dto.setEmail(professor.getEmail());
-        dto.setMatricula(professor.getMatricula());
         return dto;
     }
 }

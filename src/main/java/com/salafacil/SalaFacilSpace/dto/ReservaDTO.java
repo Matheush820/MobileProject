@@ -1,6 +1,7 @@
 package com.salafacil.SalaFacilSpace.dto;
 
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PastOrPresent;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -13,8 +14,9 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ReservaDTO {
-    
+
     @NotNull(message = "Data é obrigatória")
+    @PastOrPresent(message = "A data da reserva não pode ser no futuro")
     private LocalDate data;
 
     @NotNull(message = "Professor é obrigatório")

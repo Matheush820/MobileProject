@@ -14,7 +14,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class ProfessorDTO {
 
-    private Long id; // <-- Adicionado aqui
+    private Long id; // <-- O ID pode ser nulo na criação, pois será gerado automaticamente pelo banco
 
     @NotBlank(message = "Nome é obrigatório")
     @Size(max = 100, message = "Nome deve ter no máximo 100 caracteres")
@@ -29,7 +29,4 @@ public class ProfessorDTO {
     @Size(min = 6, max = 100, message = "Senha deve ter entre 6 e 100 caracteres")
     private String senha;
 
-    @NotBlank(message = "Matrícula é obrigatória")
-    @Size(max = 20, message = "Matrícula deve ter no máximo 20 caracteres")
-    private String matricula;
 }
