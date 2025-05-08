@@ -29,4 +29,4 @@ Sistema completo de reserva de salas acadêmicas, ideal para gerenciamento de la
 | Nome                      | Função                  | Contato                                                                                 |
 | ------------------------- | ----------------------- | --------------------------------------------------------------------------------------- |
 | **Sara Soares Pacheco**   | Backend (Java)          | [LinkedIn](https://www.linkedin.com/in/soariix) \| [GitHub](https://github.com/soariix) |
-| **Matheus Henrique** | Frontend (React Native) | [LinkedIn](https://www.linkedin.com/in/matheushenriquedev/) \| [GitHub](#)                                                            |
+| **Matheus Henrique** | Frontend (React Native) | [LinkedIn](https://www.linkedin.com/in/matheushenriquedev/) \| [GitHub](github.com/Matheush820)                                                            |
