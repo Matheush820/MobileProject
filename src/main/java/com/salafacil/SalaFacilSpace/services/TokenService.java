@@ -13,6 +13,15 @@ public class TokenService {
 
 	private static final String SECRET = "chave-secreta-top";
 
+	
+	public String obterUsernameDoToken(String token) {
+	    return Jwts.parser()
+	            .setSigningKey(SECRET)
+	            .parseClaimsJws(token)
+	            .getBody()
+	            .getSubject(); // O "subject" do token é o username
+	}
+
     public String gerarToken(UserDetails user) {
         return Jwts.builder()
                 .setSubject(user.getUsername())
@@ -21,4 +30,14 @@ public class TokenService {
                 .signWith(SignatureAlgorithm.HS512, SECRET)
                 .compact();
     }
+    
+    public boolean validarToken(String token) {
+        try {
+            Jwts.parser().setSigningKey(SECRET).parseClaimsJws(token);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
 }
