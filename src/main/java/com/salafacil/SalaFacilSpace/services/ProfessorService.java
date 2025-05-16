@@ -18,16 +18,16 @@ public class ProfessorService {
     private final ProfessorRepository professorRepository;
     private final PasswordService passwordService;
     
-    public ProfessorDTO criar(ProfessorDTO dto, String senhaPadrao) {
+    public ProfessorDTO criar(ProfessorDTO dto) {
         Professor professor = new Professor();
         professor.setNome(dto.getNome());
         professor.setEmail(dto.getEmail());
-        professor.setSenha(passwordService.encodePassword(senhaPadrao));
-
-        
+        professor.setSenha(passwordService.encodePassword(dto.getSenha()));
         Professor professorSalvo = professorRepository.save(professor);
         return toDTO(professorSalvo);
     }
+
+
 
     public ProfessorDTO buscarPorId(Long id) {
         Professor professor = professorRepository.findById(id)

@@ -21,7 +21,7 @@ public class ProfessorController {
 
     @PostMapping
     public ResponseEntity<ProfessorDTO> criar(@RequestBody @Valid ProfessorDTO dto) {
-        return ResponseEntity.ok(professorService.criar(dto, "senha-padrao"));
+        return ResponseEntity.ok(professorService.criar(dto));
     }
 
     @GetMapping("/{id}")
