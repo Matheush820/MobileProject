@@ -36,7 +36,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
     	String path = request.getRequestURI();
 
-        log.info("Interceptando path: {}", path);
+        System.out.println("Ate aqui chegou");
 
     	
         if (path.startsWith("/auth")
@@ -51,8 +51,10 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         	    filterChain.doFilter(request, response);
         	    return;
         	}
+        System.out.println("Esperando algo");
 
-       
+        System.out.println("Interceptando requisição: " + path);
+
 
         String token = obterToken(request);
 

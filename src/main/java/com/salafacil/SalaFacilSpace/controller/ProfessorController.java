@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import com.salafacil.SalaFacilSpace.dto.ProfessorDTO;
+import com.salafacil.SalaFacilSpace.dto.RedefinirSenhaDTO;
 import com.salafacil.SalaFacilSpace.services.ProfessorService;
 
 import jakarta.validation.Valid;
@@ -33,10 +34,13 @@ public class ProfessorController {
         return ResponseEntity.ok(professorService.listarTodos());
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<ProfessorDTO> atualizar(@PathVariable Long id, @RequestBody @Valid ProfessorDTO dto) {
-        return ResponseEntity.ok(professorService.atualizar(id, dto));
+    @PutMapping("/resetar-senha")
+    public ResponseEntity<Void> resetarSenha(@RequestBody @Valid RedefinirSenhaDTO dto) {
+        professorService.resetarSenhaPorEmail(dto);
+        return ResponseEntity.ok().build();
     }
+
+
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletar(@PathVariable Long id) {

@@ -6,9 +6,19 @@ import org.springframework.stereotype.Service;
 @Service
 public class PasswordService {
 
-	private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+    private final BCryptPasswordEncoder passwordEncoder;
+
+    // O Spring vai injetar o bean BCryptPasswordEncoder aqui
+    public PasswordService(BCryptPasswordEncoder passwordEncoder) {
+        this.passwordEncoder = passwordEncoder;
+    }
 
     public String encodePassword(String password) {
-        return passwordEncoder.encode(password); // Criptografa a senha
+        return passwordEncoder.encode(password);
+    }
+
+    public boolean matches(String rawPassword, String encodedPassword) {
+        return passwordEncoder.matches(rawPassword, encodedPassword);
     }
 }
+

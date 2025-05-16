@@ -22,7 +22,6 @@ import java.util.List;
 @Entity
 @Table(name = "professor", uniqueConstraints = { 
     @UniqueConstraint(columnNames = "email"),
-    @UniqueConstraint(columnNames = "matricula") 
 })
 public class Professor implements UserDetails {
 
@@ -43,9 +42,7 @@ public class Professor implements UserDetails {
     @Size(min = 6, max = 100, message = "Senha deve ter entre 6 e 100 caracteres")
     private String senha;
 
-    @NotBlank(message = "Matrícula é obrigatória")
-    @Size(max = 20, message = "Matrícula deve ter no máximo 20 caracteres")
-    private String matricula;
+    
 
     // Implementando os métodos da interface UserDetails
     @Override

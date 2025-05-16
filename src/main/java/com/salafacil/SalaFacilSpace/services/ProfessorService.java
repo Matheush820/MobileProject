@@ -1,6 +1,7 @@
 package com.salafacil.SalaFacilSpace.services;
 
 import com.salafacil.SalaFacilSpace.dto.ProfessorDTO;
+import com.salafacil.SalaFacilSpace.dto.RedefinirSenhaDTO;
 import com.salafacil.SalaFacilSpace.entity.Professor;
 import com.salafacil.SalaFacilSpace.repository.ProfessorRepository;
 import com.salafacil.SalaFacilSpace.exception.ProfessorNotFoundException; // <-- IMPORTANTE!
@@ -41,16 +42,16 @@ public class ProfessorService {
                           .collect(Collectors.toList());
     }
 
-    public ProfessorDTO atualizar(Long id, ProfessorDTO dto) {
-        Professor professor = professorRepository.findById(id)
-                .orElseThrow(() -> new ProfessorNotFoundException(id)); // 👈 Atualizado aqui!
+    public void resetarSenhaPorEmail(RedefinirSenhaDTO dto) {
+        Professor professor = professorRepository.findByEmail(dto.getEmail())
+            .orElseThrow(() -> new ProfessorNotFoundException("Email não encontrado: " + dto.getEmail()));
 
-        professor.setNome(dto.getNome());
-        professor.setEmail(dto.getEmail());
-
-        Professor atualizado = professorRepository.save(professor);
-        return toDTO(atualizado);
+        professor.setSenha(dto.getNovaSenha());
+        professorRepository.save(professor);
     }
+
+
+
     
     public void deletar(Long id) {
         Professor professor = professorRepository.findById(id)

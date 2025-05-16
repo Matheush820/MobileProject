@@ -18,6 +18,8 @@ public class MyUserDetailsService implements org.springframework.security.core.u
     @Override
     public UserDetails loadUserByUsername(String username) {
         // Aqui, o username é o email do professor
+    	System.out.println("Tentando autenticar: ");
+
         Professor professor = professorRepository.findByEmail(username)
                 .orElseThrow(() -> new IllegalArgumentException("Usuário não encontrado"));
 
