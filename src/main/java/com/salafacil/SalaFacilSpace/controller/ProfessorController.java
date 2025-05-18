@@ -9,9 +9,12 @@ import com.salafacil.SalaFacilSpace.dto.ProfessorDTO;
 import com.salafacil.SalaFacilSpace.dto.RedefinirSenhaDTO;
 import com.salafacil.SalaFacilSpace.services.ProfessorService;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
+@SecurityRequirement(name = "bearerAuth")
 @RestController
 @RequestMapping("/api/professores")
 @RequiredArgsConstructor
@@ -19,6 +22,7 @@ public class ProfessorController {
 
     private final ProfessorService professorService;
 
+    @Operation(security = @SecurityRequirement(name = ""))
     @PostMapping
     public ResponseEntity<ProfessorDTO> criar(@RequestBody @Valid ProfessorDTO dto) {
         return ResponseEntity.ok(professorService.criar(dto));

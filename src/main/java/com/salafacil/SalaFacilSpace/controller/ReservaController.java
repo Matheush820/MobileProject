@@ -2,6 +2,8 @@ package com.salafacil.SalaFacilSpace.controller;
 
 import com.salafacil.SalaFacilSpace.dto.ReservaDTO;
 import com.salafacil.SalaFacilSpace.services.ReservaService;
+
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -10,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@SecurityRequirement(name = "bearerAuth")
 @RestController
 @RequestMapping("/api/reservas")
 @RequiredArgsConstructor

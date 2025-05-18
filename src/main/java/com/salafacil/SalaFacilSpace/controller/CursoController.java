@@ -7,8 +7,11 @@ import org.springframework.web.bind.annotation.*;
 import com.salafacil.SalaFacilSpace.entity.Curso;
 import com.salafacil.SalaFacilSpace.services.CursoService;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+
 import java.util.List;
 
+@SecurityRequirement(name = "bearerAuth")
 @RestController
 @RequestMapping("/api/cursos")
 public class CursoController {

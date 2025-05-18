@@ -6,9 +6,13 @@ import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;
 import com.salafacil.SalaFacilSpace.entity.Laboratorio;
 import com.salafacil.SalaFacilSpace.services.LaboratorioService;
+
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+
 import java.util.List;
 import java.util.Optional;
 
+@SecurityRequirement(name = "bearerAuth")
 @RestController
 @RequestMapping("/api/laboratorios")
 public class LaboratorioController {

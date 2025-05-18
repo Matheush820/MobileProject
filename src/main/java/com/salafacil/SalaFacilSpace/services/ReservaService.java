@@ -82,6 +82,7 @@ public class ReservaService {
             throw new IllegalArgumentException("Já existe reserva para este laboratório no horário selecionado");
         }
 
+
         Professor professor = professorRepository.findById(reservaDTO.getProfessorId())
                 .orElseThrow(() -> new ResourceNotFoundException("Professor não encontrado"));
         Curso curso = cursoRepository.findById(reservaDTO.getCursoId())

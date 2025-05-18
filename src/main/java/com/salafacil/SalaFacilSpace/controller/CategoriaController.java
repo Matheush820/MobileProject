@@ -11,8 +11,11 @@ import jakarta.validation.Valid; // Valida os dados que chegam no corpo da requi
 import com.salafacil.SalaFacilSpace.entity.Categoria;
 import com.salafacil.SalaFacilSpace.services.CategoriaService;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+
 // Diz ao Spring que essa classe é um controller REST, que lida com requisições HTTP e retorna JSON
 @RestController
+@SecurityRequirement(name = "bearerAuth")
 // Define a rota base da API. Tudo aqui começa com /api/categorias
 @RequestMapping("/api/categorias")
 public class CategoriaController {

@@ -1,19 +1,29 @@
-package com.salafacil.SalaFacilSpace.config; 
+package com.salafacil.SalaFacilSpace.config;
 
+import org.springframework.context.annotation.Configuration;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-import org.springframework.context.annotation.Configuration; // Permite marcar essa classe como configuração do Spring
-import org.springframework.web.servlet.config.annotation.CorsRegistry; // Classe usada pra registrar as configurações de CORS
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer; // Interface que permite personalizar o comportamento do Spring MVC
+@Configuration // Marca essa classe como uma configuração do Spring
+public class CorsConfig implements WebMvcConfigurer { // Permite personalizar o comportamento do Spring MVC
 
-@Configuration // Diz pro Spring: "Essa classe aqui é de configuração, use ela!"
-public class CorsConfig implements WebMvcConfigurer { // Cria a classe CorsConfig e implementa a interface que permite alterar configs do Spring MVC
+    @Override
+    public void addCorsMappings(CorsRegistry registry) {
+        registry.addMapping("/**") // Aplica essa configuração para todas as rotas da aplicação
 
-    @Override // Garante que você está sobrescrevendo corretamente o método addCorsMappings
-    public void addCorsMappings(CorsRegistry registry) { // Método chamado automaticamente pelo Spring pra aplicar as regras de CORS
-        
-        registry.addMapping("/**") // Aplica essas regras pra TODAS as rotas da API (/** é um coringa)
-            .allowedOrigins("*") // Permite que QUALQUER ORIGEM (site, app, etc) acesse a API — ideal só em ambiente de desenvolvimento!
-            .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS") // Informa os métodos HTTP que são permitidos nas requisições
-            .allowedHeaders("*"); // Permite que qualquer cabeçalho HTTP seja aceito (ex: Authorization, Content-Type, etc)
+            // Define quais origens (domínios) podem acessar a API
+            // "*" permite todas as origens (ideal só para testes)
+            // Para trabalhar com autenticação (como JWT), declare o domínio do front-end explicitamente
+            .allowedOrigins("http://192.168.1.55:8081") // <- coloque o domínio do seu front-end aqui
+
+            // Métodos HTTP permitidos na API
+            .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+
+            // Cabeçalhos permitidos nas requisições (Authorization é necessário para JWT)
+            .allowedHeaders("*")
+
+            // Permite envio de cookies e headers de autenticação (como Authorization: Bearer <token>)
+            // Só pode ser usado se allowedOrigins for um domínio específico (e não "*")
+            .allowCredentials(true); // <- importante se o front usar "withCredentials" ou enviar tokens JWT
     }
 }
