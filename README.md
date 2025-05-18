@@ -6,7 +6,7 @@ Sistema completo de reserva de salas acadêmicas, ideal para gerenciamento de la
 
 ## 🚀 Tecnologias Utilizadas
 
-- Java 17  
+- Java 21
 - Spring Boot  
 - Spring Data JPA  
 - MySQL  
