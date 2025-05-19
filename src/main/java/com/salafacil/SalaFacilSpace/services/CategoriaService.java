@@ -1,9 +1,13 @@
 package com.salafacil.SalaFacilSpace.services;
 
+import com.salafacil.SalaFacilSpace.entity.Categoria;
+import com.salafacil.SalaFacilSpace.exception.ResourceNotFoundException;
+import com.salafacil.SalaFacilSpace.repository.CategoriaRepository;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import com.salafacil.SalaFacilSpace.entity.Categoria;
-import com.salafacil.SalaFacilSpace.repository.CategoriaRepository;
+
+import java.util.List;
 
 @Service
 public class CategoriaService {
@@ -17,30 +21,30 @@ public class CategoriaService {
     }
 
     // Obter todas as categorias
-    public Iterable<Categoria> getAllCategorias() {
+    public List<Categoria> getAllCategorias() {
         return categoriaRepository.findAll();
     }
 
     // Obter uma categoria específica pelo ID
     public Categoria getCategoriaById(Long id) {
-        return categoriaRepository.findById(id).orElse(null);
+        return categoriaRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Categoria não encontrada com ID: " + id));
     }
 
     // Atualizar categoria
     public Categoria updateCategoria(Long id, Categoria categoria) {
-        if (categoriaRepository.existsById(id)) {
-            categoria.setId(id);  // Garantir que o ID da categoria seja mantido
-            return categoriaRepository.save(categoria);
+        if (!categoriaRepository.existsById(id)) {
+            throw new ResourceNotFoundException("Categoria não encontrada para atualização com ID: " + id);
         }
-        return null;
+        categoria.setId(id);
+        return categoriaRepository.save(categoria);
     }
 
     // Deletar categoria
-    public boolean deleteCategoria(Long id) {
-        if (categoriaRepository.existsById(id)) {
-            categoriaRepository.deleteById(id);
-            return true;
+    public void deleteCategoria(Long id) {
+        if (!categoriaRepository.existsById(id)) {
+            throw new ResourceNotFoundException("Categoria não encontrada para exclusão com ID: " + id);
         }
-        return false;
+        categoriaRepository.deleteById(id);
     }
 }
