@@ -14,7 +14,7 @@ public class CorsConfig implements WebMvcConfigurer { // Permite personalizar o 
             // Define quais origens (domínios) podem acessar a API
             // "*" permite todas as origens (ideal só para testes)
             // Para trabalhar com autenticação (como JWT), declare o domínio do front-end explicitamente
-            .allowedOrigins("http://192.168.1.55:8081") // <- coloque o domínio do seu front-end aqui
+            .allowedOrigins("http://192.168.1.56:8081") // <- coloque o domínio do seu front-end aqui
 
             // Métodos HTTP permitidos na API
             .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")

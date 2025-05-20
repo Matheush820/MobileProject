@@ -25,13 +25,19 @@ public class LaboratorioService {
 
     // Método para criar um novo laboratório
     public Laboratorio createLaboratorio(Laboratorio laboratorio) {
+        if (laboratorio.getCategoria() == null) {
+            throw new IllegalArgumentException("Categoria do laboratório não pode ser nula.");
+        }
         return laboratorioRepository.save(laboratorio);
     }
 
-    // Método para atualizar um laboratório
     public Laboratorio updateLaboratorio(Laboratorio laboratorio) {
+        if (laboratorio.getCategoria() == null) {
+            throw new IllegalArgumentException("Categoria do laboratório não pode ser nula.");
+        }
         return laboratorioRepository.save(laboratorio);
     }
+
 
     // Método para excluir um laboratório
     public void deleteLaboratorio(Long id) {
