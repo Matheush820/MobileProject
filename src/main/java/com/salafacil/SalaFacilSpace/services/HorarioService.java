@@ -1,12 +1,14 @@
 package com.salafacil.SalaFacilSpace.services;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import java.util.List;
-import java.util.Optional;
-
 import com.salafacil.SalaFacilSpace.entity.Horario;
 import com.salafacil.SalaFacilSpace.repository.HorarioRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Optional;
 
 @Service
 public class HorarioService {
@@ -31,6 +33,7 @@ public class HorarioService {
             horarioExistente.setDiaSemana(novoHorario.getDiaSemana());
             horarioExistente.setHoraInicio(novoHorario.getHoraInicio());
             horarioExistente.setHoraFim(novoHorario.getHoraFim());
+            horarioExistente.setTurno(novoHorario.getTurno());
             return horarioRepository.save(horarioExistente);
         });
     }
@@ -41,5 +44,11 @@ public class HorarioService {
             return true;
         }
         return false;
+    }
+
+    // 🔥 Buscar por data e turno
+    public List<Horario> buscarHorariosPorDataEPorTurno(LocalDate data, String turno) {
+        DayOfWeek diaSemana = data.getDayOfWeek();
+        return horarioRepository.findByDiaSemanaAndTurno(diaSemana, turno.toUpperCase());
     }
 }

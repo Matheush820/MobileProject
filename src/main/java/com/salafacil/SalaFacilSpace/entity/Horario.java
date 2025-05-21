@@ -23,11 +23,14 @@ public class Horario {
     private Long id;
 
     @NotBlank(message = "Dia da semana é obrigatório")
-    private String diaSemana;
+    private String diaSemana; // Ex.: SEGUNDA, TERÇA, QUARTA...
 
     @NotNull(message = "Hora de início é obrigatória")
     private LocalTime horaInicio;
 
     @NotNull(message = "Hora de fim é obrigatória")
     private LocalTime horaFim;
+
+    @NotBlank(message = "Turno é obrigatório")
+    private String turno; // Ex.: MANHA, TARDE, NOITE
 }

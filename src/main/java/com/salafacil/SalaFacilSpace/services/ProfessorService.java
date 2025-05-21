@@ -3,7 +3,7 @@ package com.salafacil.SalaFacilSpace.services;
 import com.salafacil.SalaFacilSpace.dto.ProfessorDTO;
 import com.salafacil.SalaFacilSpace.entity.Professor;
 import com.salafacil.SalaFacilSpace.repository.ProfessorRepository;
-import com.salafacil.SalaFacilSpace.exception.ProfessorNotFoundException; // <-- IMPORTANTE!
+import com.salafacil.SalaFacilSpace.exception.ProfessorNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -16,21 +16,20 @@ public class ProfessorService {
 
     private final ProfessorRepository professorRepository;
     private final PasswordService passwordService;
-    
+
     public ProfessorDTO criar(ProfessorDTO dto, String senhaPadrao) {
         Professor professor = new Professor();
         professor.setNome(dto.getNome());
         professor.setEmail(dto.getEmail());
         professor.setSenha(passwordService.encodePassword(senhaPadrao));
 
-        
         Professor professorSalvo = professorRepository.save(professor);
         return toDTO(professorSalvo);
     }
 
     public ProfessorDTO buscarPorId(Long id) {
         Professor professor = professorRepository.findById(id)
-                .orElseThrow(() -> new ProfessorNotFoundException(id)); // 👈 Atualizado aqui!
+                .orElseThrow(() -> new ProfessorNotFoundException(id));
         return toDTO(professor);
     }
 
@@ -43,18 +42,23 @@ public class ProfessorService {
 
     public ProfessorDTO atualizar(Long id, ProfessorDTO dto) {
         Professor professor = professorRepository.findById(id)
-                .orElseThrow(() -> new ProfessorNotFoundException(id)); // 👈 Atualizado aqui!
+                .orElseThrow(() -> new ProfessorNotFoundException(id));
 
         professor.setNome(dto.getNome());
         professor.setEmail(dto.getEmail());
 
+        if (dto.getSenha() != null && !dto.getSenha().isEmpty()) {
+            String senhaCriptografada = passwordService.encodePassword(dto.getSenha());
+            professor.setSenha(senhaCriptografada);
+        }
+
         Professor atualizado = professorRepository.save(professor);
         return toDTO(atualizado);
     }
-    
+
     public void deletar(Long id) {
         Professor professor = professorRepository.findById(id)
-            .orElseThrow(() -> new ProfessorNotFoundException(id)); // 👈 Atualizado aqui!
+            .orElseThrow(() -> new ProfessorNotFoundException(id));
         professorRepository.delete(professor);
     }
 
