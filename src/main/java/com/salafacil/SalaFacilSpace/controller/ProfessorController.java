@@ -5,7 +5,8 @@ import java.util.List;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import com.salafacil.SalaFacilSpace.dto.ProfessorDTO;
+import com.salafacil.SalaFacilSpace.dto.ProfessorRequestDTO;
+import com.salafacil.SalaFacilSpace.dto.ProfessorResponseDTO;
 import com.salafacil.SalaFacilSpace.services.ProfessorService;
 
 import jakarta.validation.Valid;
@@ -19,22 +20,22 @@ public class ProfessorController {
     private final ProfessorService professorService;
 
     @PostMapping
-    public ResponseEntity<ProfessorDTO> criar(@RequestBody @Valid ProfessorDTO dto) {
-        return ResponseEntity.ok(professorService.criar(dto, "senha-padrao"));
+    public ResponseEntity<ProfessorResponseDTO> criar(@RequestBody @Valid ProfessorRequestDTO dto) {
+        return ResponseEntity.ok(professorService.criar(dto));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ProfessorDTO> buscarPorId(@PathVariable Long id) {
+    public ResponseEntity<ProfessorResponseDTO> buscarPorId(@PathVariable Long id) {
         return ResponseEntity.ok(professorService.buscarPorId(id));
     }
 
     @GetMapping
-    public ResponseEntity<List<ProfessorDTO>> listarTodos() {
+    public ResponseEntity<List<ProfessorResponseDTO>> listarTodos() {
         return ResponseEntity.ok(professorService.listarTodos());
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ProfessorDTO> atualizar(@PathVariable Long id, @RequestBody @Valid ProfessorDTO dto) {
+    public ResponseEntity<ProfessorResponseDTO> atualizar(@PathVariable Long id, @RequestBody @Valid ProfessorRequestDTO dto) {
         return ResponseEntity.ok(professorService.atualizar(id, dto));
     }
 

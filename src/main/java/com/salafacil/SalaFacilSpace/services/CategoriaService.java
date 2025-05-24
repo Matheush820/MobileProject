@@ -1,49 +1,57 @@
+// CategoriaService.java
 package com.salafacil.SalaFacilSpace.services;
 
+import com.salafacil.SalaFacilSpace.dto.CategoriaDTO;
 import com.salafacil.SalaFacilSpace.entity.Categoria;
 import com.salafacil.SalaFacilSpace.exception.ResourceNotFoundException;
+import com.salafacil.SalaFacilSpace.mapper.CategoriaMapper;
 import com.salafacil.SalaFacilSpace.repository.CategoriaRepository;
-
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class CategoriaService {
 
-    @Autowired
-    private CategoriaRepository categoriaRepository;
+    private final CategoriaRepository categoriaRepository;
+    private final CategoriaMapper categoriaMapper;
 
-    // Criar categoria
-    public Categoria createCategoria(Categoria categoria) {
-        return categoriaRepository.save(categoria);
+    // Injeção por construtor para facilitar testes e imutabilidade
+    public CategoriaService(CategoriaRepository categoriaRepository, CategoriaMapper categoriaMapper) {
+        this.categoriaRepository = categoriaRepository;
+        this.categoriaMapper = categoriaMapper;
     }
 
-    // Obter todas as categorias
-    public List<Categoria> getAllCategorias() {
-        return categoriaRepository.findAll();
+    public CategoriaDTO createCategoria(CategoriaDTO dto) {
+        Categoria entidade = categoriaMapper.toEntity(dto);
+        Categoria salvo = categoriaRepository.save(entidade);
+        return categoriaMapper.toDTO(salvo);
     }
 
-    // Obter uma categoria específica pelo ID
-    public Categoria getCategoriaById(Long id) {
-        return categoriaRepository.findById(id)
+    public List<CategoriaDTO> getAllCategorias() {
+        return categoriaRepository.findAll().stream()
+                .map(categoriaMapper::toDTO)
+                .collect(Collectors.toList());
+    }
+
+    public CategoriaDTO getCategoriaById(Long id) {
+        Categoria categoria = categoriaRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Categoria não encontrada com ID: " + id));
+        return categoriaMapper.toDTO(categoria);
     }
 
-    // Atualizar categoria
-    public Categoria updateCategoria(Long id, Categoria categoria) {
-        if (!categoriaRepository.existsById(id)) {
-            throw new ResourceNotFoundException("Categoria não encontrada para atualização com ID: " + id);
-        }
-        categoria.setId(id);
-        return categoriaRepository.save(categoria);
+    public CategoriaDTO updateCategoria(Long id, CategoriaDTO dto) {
+        Categoria categoriaExistente = categoriaRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Categoria não encontrada para atualização com ID: " + id));
+        categoriaMapper.updateEntityFromDTO(dto, categoriaExistente);
+        Categoria atualizado = categoriaRepository.save(categoriaExistente);
+        return categoriaMapper.toDTO(atualizado);
     }
 
-    // Deletar categoria
     public void deleteCategoria(Long id) {
         if (!categoriaRepository.existsById(id)) {
-            throw new ResourceNotFoundException("Categoria não encontrada para exclusão com ID: " + id);
+            throw new ResourceNotFoundException("Categoria não encontrada para deleção com ID: " + id);
         }
         categoriaRepository.deleteById(id);
     }

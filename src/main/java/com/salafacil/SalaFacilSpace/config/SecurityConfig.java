@@ -1,45 +1,75 @@
 package com.salafacil.SalaFacilSpace.config;
 
-import com.salafacil.SalaFacilSpace.services.MyUserDetailsService;
+
+import com.salafacil.SalaFacilSpace.services.ProfessorUserDetailsService;
 import com.salafacil.SalaFacilSpace.services.TokenService;
+
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.http.HttpMethod;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.filter.CorsFilter;
 
-@Configuration // Indica que essa classe é uma configuração do Spring
-@EnableWebSecurity // Habilita a segurança na aplicação web com Spring Security
+import java.util.List;
+
+@Configuration
+@EnableWebSecurity
 public class SecurityConfig {
 
-    private final TokenService tokenService; // Serviço responsável pela validação do token JWT
-    private final MyUserDetailsService userDetailsService; // Serviço que carrega os dados do usuário do banco de dados
+    private static final String AUTH_WHITELIST = "/auth/**";
 
-    // Construtor que recebe os serviços como dependências
-    public SecurityConfig(TokenService tokenService, MyUserDetailsService userDetailsService) {
+    private final TokenService tokenService;
+    private final ProfessorUserDetailsService userDetailsService;
+    private final JwtAuthFilter jwtAuthFilter;
+
+    // Agora o JwtAuthFilter é injetado, permitindo melhor gerenciamento e testabilidade
+    public SecurityConfig(TokenService tokenService, ProfessorUserDetailsService userDetailsService, JwtAuthFilter jwtAuthFilter) {
         this.tokenService = tokenService;
         this.userDetailsService = userDetailsService;
+        this.jwtAuthFilter = jwtAuthFilter;
     }
 
-    // Método responsável por configurar a segurança da aplicação
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    @Order(1) // Define prioridade, útil se futuros filtros forem adicionados
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-            .csrf(csrf -> csrf.disable()) // Desabilita a proteção CSRF (Cross-Site Request Forgery) - necessária para APIs
+            .csrf(csrf -> csrf.disable())
+            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/auth/**").permitAll() // Permite o acesso sem autenticação para rotas que começam com "/auth"
-                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() // Permite requisições OPTIONS (necessárias para CORS)
-                .anyRequest().authenticated() // Exige autenticação para qualquer outra requisição
+                .requestMatchers(AUTH_WHITELIST).permitAll()
+                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                .anyRequest().authenticated()
             )
-            .addFilterBefore(jwtAuthFilter(), UsernamePasswordAuthenticationFilter.class); // Adiciona o filtro JWT antes do filtro de autenticação padrão do Spring
+            .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
-        return http.build(); // Retorna a configuração de segurança construída
+        return http.build();
     }
 
-    // Método que cria e retorna a instância do JwtAuthFilter
-    private JwtAuthFilter jwtAuthFilter() {
-        return new JwtAuthFilter(tokenService, userDetailsService); // Passa os serviços necessários para o filtro
+    // Configuração CORS básica para API, permite padrões comuns, mas pode ser ajustada
+    @Bean
+    public CorsFilter corsFilter() {
+        return new CorsFilter(corsConfigurationSource());
+    }
+
+    private UrlBasedCorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration config = new CorsConfiguration();
+        config.setAllowedOrigins(List.of("*")); // Ajuste para origens confiáveis em produção!
+        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        config.setAllowedHeaders(List.of("*"));
+        config.setAllowCredentials(false);
+        config.setMaxAge(3600L);
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", config);
+        return source;
     }
 }

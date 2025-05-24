@@ -3,7 +3,10 @@ package com.salafacil.SalaFacilSpace.services;
 import com.salafacil.SalaFacilSpace.dto.ReservaDTO;
 import com.salafacil.SalaFacilSpace.entity.*;
 import com.salafacil.SalaFacilSpace.exception.ResourceNotFoundException;
+import com.salafacil.SalaFacilSpace.mapper.ReservaMapper;
 import com.salafacil.SalaFacilSpace.repository.*;
+import com.salafacil.SalaFacilSpace.validator.ReservaValidator;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,104 +24,84 @@ public class ReservaService {
     private final LaboratorioRepository laboratorioRepository;
     private final HorarioRepository horarioRepository;
     private final CategoriaRepository categoriaRepository;
+    private final ReservaValidator reservaValidator;
 
     @Transactional
     public ReservaDTO criarReserva(ReservaDTO reservaDTO) {
-        if (reservaRepository.existsByDataAndLaboratorioIdAndHorarioId(
-                reservaDTO.getData(),
-                reservaDTO.getLaboratorioId(),
-                reservaDTO.getHorarioId())) {
-            throw new IllegalArgumentException("Já existe reserva para este laboratório no horário selecionado");
-        }
-
-        Professor professor = professorRepository.findById(reservaDTO.getProfessorId())
-                .orElseThrow(() -> new ResourceNotFoundException("Professor não encontrado"));
-        Curso curso = cursoRepository.findById(reservaDTO.getCursoId())
-                .orElseThrow(() -> new ResourceNotFoundException("Curso não encontrado"));
-        Laboratorio laboratorio = laboratorioRepository.findById(reservaDTO.getLaboratorioId())
-                .orElseThrow(() -> new ResourceNotFoundException("Laboratório não encontrado"));
-        Horario horario = horarioRepository.findById(reservaDTO.getHorarioId())
-                .orElseThrow(() -> new ResourceNotFoundException("Horário não encontrado"));
-        Categoria categoria = categoriaRepository.findById(reservaDTO.getCategoriaId())
-                .orElseThrow(() -> new ResourceNotFoundException("Categoria não encontrada"));
+        reservaValidator.validarConflito(reservaDTO);
 
         Reserva reserva = Reserva.builder()
                 .data(reservaDTO.getData())
-                .professor(professor)
-                .curso(curso)
-                .laboratorio(laboratorio)
-                .horario(horario)
-                .categoria(categoria)
+                .professor(buscarProfessor(reservaDTO.getProfessorId()))
+                .curso(buscarCurso(reservaDTO.getCursoId()))
+                .laboratorio(buscarLaboratorio(reservaDTO.getLaboratorioId()))
+                .horario(buscarHorario(reservaDTO.getHorarioId()))
+                .categoria(buscarCategoria(reservaDTO.getCategoriaId()))
                 .build();
 
-        Reserva reservaSalva = reservaRepository.save(reserva);
-        return convertToDTO(reservaSalva);
+        return ReservaMapper.toDTO(reservaRepository.save(reserva));
     }
 
     @Transactional
     public ReservaDTO obterReserva(Long id) {
-        Reserva reserva = reservaRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Reserva não encontrada"));
-        return convertToDTO(reserva);
+        return ReservaMapper.toDTO(buscarReserva(id));
     }
 
     @Transactional
     public List<ReservaDTO> listarTodasReservas() {
-        List<Reserva> reservas = reservaRepository.findAll();
-        return reservas.stream()
-                .map(this::convertToDTO)
+        return reservaRepository.findAll().stream()
+                .map(ReservaMapper::toDTO)
                 .collect(Collectors.toList());
     }
 
     @Transactional
     public ReservaDTO atualizarReserva(Long id, ReservaDTO reservaDTO) {
-        Reserva reservaExistente = reservaRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Reserva não encontrada"));
+        Reserva reserva = buscarReserva(id);
+        reservaValidator.validarConflito(reservaDTO);
 
-        if (reservaRepository.existsByDataAndLaboratorioIdAndHorarioId(
-                reservaDTO.getData(),
-                reservaDTO.getLaboratorioId(),
-                reservaDTO.getHorarioId())) {
-            throw new IllegalArgumentException("Já existe reserva para este laboratório no horário selecionado");
-        }
+        reserva.setData(reservaDTO.getData());
+        reserva.setProfessor(buscarProfessor(reservaDTO.getProfessorId()));
+        reserva.setCurso(buscarCurso(reservaDTO.getCursoId()));
+        reserva.setLaboratorio(buscarLaboratorio(reservaDTO.getLaboratorioId()));
+        reserva.setHorario(buscarHorario(reservaDTO.getHorarioId()));
+        reserva.setCategoria(buscarCategoria(reservaDTO.getCategoriaId()));
 
-        Professor professor = professorRepository.findById(reservaDTO.getProfessorId())
-                .orElseThrow(() -> new ResourceNotFoundException("Professor não encontrado"));
-        Curso curso = cursoRepository.findById(reservaDTO.getCursoId())
-                .orElseThrow(() -> new ResourceNotFoundException("Curso não encontrado"));
-        Laboratorio laboratorio = laboratorioRepository.findById(reservaDTO.getLaboratorioId())
-                .orElseThrow(() -> new ResourceNotFoundException("Laboratório não encontrado"));
-        Horario horario = horarioRepository.findById(reservaDTO.getHorarioId())
-                .orElseThrow(() -> new ResourceNotFoundException("Horário não encontrado"));
-        Categoria categoria = categoriaRepository.findById(reservaDTO.getCategoriaId())
-                .orElseThrow(() -> new ResourceNotFoundException("Categoria não encontrada"));
-
-        reservaExistente.setData(reservaDTO.getData());
-        reservaExistente.setProfessor(professor);
-        reservaExistente.setCurso(curso);
-        reservaExistente.setLaboratorio(laboratorio);
-        reservaExistente.setHorario(horario);
-        reservaExistente.setCategoria(categoria);
-
-        Reserva reservaAtualizada = reservaRepository.save(reservaExistente);
-        return convertToDTO(reservaAtualizada);
+        return ReservaMapper.toDTO(reservaRepository.save(reserva));
     }
 
     @Transactional
     public void deletarReserva(Long id) {
-        Reserva reserva = reservaRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Reserva não encontrada"));
-        reservaRepository.delete(reserva);
+        reservaRepository.delete(buscarReserva(id));
     }
 
-    private ReservaDTO convertToDTO(Reserva reserva) {
-        return ReservaDTO.builder()
-                .data(reserva.getData())
-                .professorId(reserva.getProfessor().getId())
-                .cursoId(reserva.getCurso().getId())
-                .laboratorioId(reserva.getLaboratorio().getId())
-                .horarioId(reserva.getHorario().getId())
-                .categoriaId(reserva.getCategoria().getId())
-                .build();
+    // 🔥 Helpers privados para limpar o service
+    private Reserva buscarReserva(Long id) {
+        return reservaRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Reserva não encontrada com ID: " + id));
+    }
+
+    private Professor buscarProfessor(Long id) {
+        return professorRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Professor não encontrado com ID: " + id));
+    }
+
+    private Curso buscarCurso(Long id) {
+        return cursoRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Curso não encontrado com ID: " + id));
+    }
+
+    private Laboratorio buscarLaboratorio(Long id) {
+        return laboratorioRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Laboratório não encontrado com ID: " + id));
+    }
+
+    private Horario buscarHorario(Long id) {
+        return horarioRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Horário não encontrado com ID: " + id));
+    }
+
+    private Categoria buscarCategoria(Long id) {
+        return categoriaRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Categoria não encontrada com ID: " + id));
     }
 }

@@ -1,7 +1,9 @@
+
 package com.salafacil.SalaFacilSpace.config;
 
 import jakarta.servlet.http.HttpServletResponse;
-import com.salafacil.SalaFacilSpace.services.MyUserDetailsService;
+
+import com.salafacil.SalaFacilSpace.services.ProfessorUserDetailsService;
 import com.salafacil.SalaFacilSpace.services.TokenService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -21,10 +23,10 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
     // Serviços necessários para validar o token e carregar os dados do usuário
     private final TokenService tokenService;
-    private final MyUserDetailsService userDetailsService;
+    private final ProfessorUserDetailsService userDetailsService;
 
     // Construtor que recebe os serviços como dependências e os inicializa
-    public JwtAuthFilter(TokenService tokenService, MyUserDetailsService userDetailsService) {
+    public JwtAuthFilter(TokenService tokenService, ProfessorUserDetailsService userDetailsService) {
         this.tokenService = tokenService;
         this.userDetailsService = userDetailsService;
     }

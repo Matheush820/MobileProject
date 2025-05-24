@@ -1,10 +1,14 @@
+// 🔥 Service bonitão, sem peso morto
 package com.salafacil.SalaFacilSpace.services;
 
-import com.salafacil.SalaFacilSpace.dto.ProfessorDTO;
+import com.salafacil.SalaFacilSpace.dto.ProfessorRequestDTO;
+import com.salafacil.SalaFacilSpace.dto.ProfessorResponseDTO;
 import com.salafacil.SalaFacilSpace.entity.Professor;
-import com.salafacil.SalaFacilSpace.repository.ProfessorRepository;
 import com.salafacil.SalaFacilSpace.exception.ProfessorNotFoundException;
+import com.salafacil.SalaFacilSpace.mapper.ProfessorMapper;
+import com.salafacil.SalaFacilSpace.repository.ProfessorRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -16,57 +20,63 @@ public class ProfessorService {
 
     private final ProfessorRepository professorRepository;
     private final PasswordService passwordService;
+    private final ProfessorMapper mapper;
 
-    public ProfessorDTO criar(ProfessorDTO dto, String senhaPadrao) {
-        Professor professor = new Professor();
-        professor.setNome(dto.getNome());
-        professor.setEmail(dto.getEmail());
+    @Value("${app.senha-padrao}")
+    private String senhaPadrao;
+
+    public ProfessorResponseDTO criar(ProfessorRequestDTO dto) {
+        verificarEmailDisponivel(dto.getEmail());
+
+        Professor professor = mapper.toEntity(dto);
         professor.setSenha(passwordService.encodePassword(senhaPadrao));
 
-        Professor professorSalvo = professorRepository.save(professor);
-        return toDTO(professorSalvo);
+        Professor salvo = professorRepository.save(professor);
+        return mapper.toResponseDTO(salvo);
     }
 
-    public ProfessorDTO buscarPorId(Long id) {
-        Professor professor = professorRepository.findById(id)
-                .orElseThrow(() -> new ProfessorNotFoundException(id));
-        return toDTO(professor);
+    public ProfessorResponseDTO buscarPorId(Long id) {
+        Professor professor = buscarOuFalhar(id);
+        return mapper.toResponseDTO(professor);
     }
 
-    public List<ProfessorDTO> listarTodos() {
-        List<Professor> professores = professorRepository.findAll();
-        return professores.stream()
-                          .map(this::toDTO)
-                          .collect(Collectors.toList());
+    public List<ProfessorResponseDTO> listarTodos() {
+        return professorRepository.findAll().stream()
+                .map(mapper::toResponseDTO)
+                .collect(Collectors.toList());
     }
 
-    public ProfessorDTO atualizar(Long id, ProfessorDTO dto) {
-        Professor professor = professorRepository.findById(id)
-                .orElseThrow(() -> new ProfessorNotFoundException(id));
+    public ProfessorResponseDTO atualizar(Long id, ProfessorRequestDTO dto) {
+        Professor professor = buscarOuFalhar(id);
+
+        if (!professor.getEmail().equals(dto.getEmail())) {
+            verificarEmailDisponivel(dto.getEmail());
+        }
 
         professor.setNome(dto.getNome());
         professor.setEmail(dto.getEmail());
 
         if (dto.getSenha() != null && !dto.getSenha().isEmpty()) {
-            String senhaCriptografada = passwordService.encodePassword(dto.getSenha());
-            professor.setSenha(senhaCriptografada);
+            professor.setSenha(passwordService.encodePassword(dto.getSenha()));
         }
 
         Professor atualizado = professorRepository.save(professor);
-        return toDTO(atualizado);
+        return mapper.toResponseDTO(atualizado);
     }
 
     public void deletar(Long id) {
-        Professor professor = professorRepository.findById(id)
-            .orElseThrow(() -> new ProfessorNotFoundException(id));
+        Professor professor = buscarOuFalhar(id);
         professorRepository.delete(professor);
     }
 
-    private ProfessorDTO toDTO(Professor professor) {
-        ProfessorDTO dto = new ProfessorDTO();
-        dto.setId(professor.getId());
-        dto.setNome(professor.getNome());
-        dto.setEmail(professor.getEmail());
-        return dto;
+    private Professor buscarOuFalhar(Long id) {
+        return professorRepository.findById(id)
+                .orElseThrow(() -> new ProfessorNotFoundException(id));
+    }
+
+    private void verificarEmailDisponivel(String email) {
+        if (professorRepository.findByEmail(email).isPresent()) {
+            throw new IllegalArgumentException("Email já está em uso.");
+        }
     }
 }

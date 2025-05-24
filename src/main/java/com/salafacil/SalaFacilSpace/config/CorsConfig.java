@@ -1,19 +1,36 @@
-package com.salafacil.SalaFacilSpace.config; 
+package com.salafacil.SalaFacilSpace.config;
 
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-import org.springframework.context.annotation.Configuration; // Permite marcar essa classe como configuração do Spring
-import org.springframework.web.servlet.config.annotation.CorsRegistry; // Classe usada pra registrar as configurações de CORS
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer; // Interface que permite personalizar o comportamento do Spring MVC
+/**
+ * Configuração de CORS para controlar quais origens, métodos e headers
+ * podem acessar a API.  
+ * 
+ * Para segurança, as origens permitidas são parametrizadas via properties,
+ * evitando liberar o mundo inteiro (a não ser que explicitamente desejado em dev).
+ * 
+ * Ideal usar perfis Spring para controlar ambientes (dev, prod).
+ */
+@Configuration
+public class CorsConfig implements WebMvcConfigurer {
 
-@Configuration // Diz pro Spring: "Essa classe aqui é de configuração, use ela!"
-public class CorsConfig implements WebMvcConfigurer { // Cria a classe CorsConfig e implementa a interface que permite alterar configs do Spring MVC
+    // Origem permitida, configurável via application.properties
+    @Value("${app.cors.allowed-origins}")
+    private String[] allowedOrigins;
 
-    @Override // Garante que você está sobrescrevendo corretamente o método addCorsMappings
-    public void addCorsMappings(CorsRegistry registry) { // Método chamado automaticamente pelo Spring pra aplicar as regras de CORS
-        
-        registry.addMapping("/**") // Aplica essas regras pra TODAS as rotas da API (/** é um coringa)
-            .allowedOrigins("*") // Permite que QUALQUER ORIGEM (site, app, etc) acesse a API — ideal só em ambiente de desenvolvimento!
-            .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS") // Informa os métodos HTTP que são permitidos nas requisições
-            .allowedHeaders("*"); // Permite que qualquer cabeçalho HTTP seja aceito (ex: Authorization, Content-Type, etc)
+    // Métodos HTTP permitidos, configuráveis caso necessário
+    private static final String[] ALLOWED_METHODS = { "GET", "POST", "PUT", "DELETE", "OPTIONS" };
+
+    @Override
+    public void addCorsMappings(CorsRegistry registry) {
+        registry.addMapping("/**")
+            .allowedOrigins(allowedOrigins) // Origem configurável para segurança
+            .allowedMethods(ALLOWED_METHODS)
+            .allowedHeaders("*");
+            // Se precisar permitir cookies/autenticação, descomente a linha abaixo
+            //.allowCredentials(true);
     }
 }

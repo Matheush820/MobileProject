@@ -1,11 +1,12 @@
 package com.salafacil.SalaFacilSpace.controller;
 
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
-
-import com.salafacil.SalaFacilSpace.entity.Curso;
+import com.salafacil.SalaFacilSpace.dto.CursoRequestDTO;
+import com.salafacil.SalaFacilSpace.dto.CursoResponseDTO;
+import com.salafacil.SalaFacilSpace.exception.ResourceNotFoundException;
 import com.salafacil.SalaFacilSpace.services.CursoService;
+import jakarta.validation.Valid;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -13,36 +14,44 @@ import java.util.List;
 @RequestMapping("/api/cursos")
 public class CursoController {
 
-    @Autowired
-    private CursoService cursoService;
+    private final CursoService cursoService;
 
-    // Endpoint para listar todos os cursos
+    public CursoController(CursoService cursoService) {
+        this.cursoService = cursoService;
+    }
+
     @GetMapping
-    public List<Curso> getAllCursos() {
-        return cursoService.getAllCursos();
+    public ResponseEntity<List<CursoResponseDTO>> getAllCursos() {
+        List<CursoResponseDTO> cursos = cursoService.getAllCursos();
+        return ResponseEntity.ok(cursos);
     }
 
-    // Endpoint para obter um curso por ID
     @GetMapping("/{id}")
-    public Curso getCursoById(@PathVariable Long id) {
-        return cursoService.getCursoById(id);
+    public ResponseEntity<CursoResponseDTO> getCursoById(@PathVariable Long id) {
+        CursoResponseDTO curso = cursoService.getCursoById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Curso não encontrado com id: " + id));
+        return ResponseEntity.ok(curso);
     }
 
-    // Endpoint para criar um novo curso
     @PostMapping
-    public Curso createCurso(@RequestBody Curso curso) {
-        return cursoService.createCurso(curso);
+    public ResponseEntity<CursoResponseDTO> createCurso(@Valid @RequestBody CursoRequestDTO cursoRequest) {
+        CursoResponseDTO cursoCriado = cursoService.createCurso(cursoRequest);
+        return ResponseEntity.status(201).body(cursoCriado);
     }
 
-    // Endpoint para atualizar um curso
     @PutMapping("/{id}")
-    public Curso updateCurso(@PathVariable Long id, @RequestBody Curso curso) {
-        return cursoService.updateCurso(id, curso);
+    public ResponseEntity<CursoResponseDTO> updateCurso(@PathVariable Long id,
+                                                        @Valid @RequestBody CursoRequestDTO cursoRequest) {
+        CursoResponseDTO cursoAtualizado = cursoService.updateCurso(id, cursoRequest)
+                .orElseThrow(() -> new ResourceNotFoundException("Curso não encontrado com id: " + id));
+        return ResponseEntity.ok(cursoAtualizado);
     }
 
-    // Endpoint para deletar um curso
     @DeleteMapping("/{id}")
-    public void deleteCurso(@PathVariable Long id) {
-        cursoService.deleteCurso(id);
+    public ResponseEntity<Void> deleteCurso(@PathVariable Long id) {
+        if (!cursoService.deleteCurso(id)) {
+            throw new ResourceNotFoundException("Curso não encontrado com id: " + id);
+        }
+        return ResponseEntity.noContent().build();
     }
 }

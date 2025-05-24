@@ -1,47 +1,62 @@
 package com.salafacil.SalaFacilSpace.services;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
+import com.salafacil.SalaFacilSpace.dto.CursoRequestDTO;
+import com.salafacil.SalaFacilSpace.dto.CursoResponseDTO;
 import com.salafacil.SalaFacilSpace.entity.Curso;
+import com.salafacil.SalaFacilSpace.mapper.CursoMapper;
 import com.salafacil.SalaFacilSpace.repository.CursoRepository;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class CursoService {
 
-    @Autowired
-    private CursoRepository cursoRepository;
+    private final CursoRepository cursoRepository;
+    private final CursoMapper cursoMapper;
 
-    // Lista todos os cursos
-    public List<Curso> getAllCursos() {
-        return cursoRepository.findAll();
+    public CursoService(CursoRepository cursoRepository, CursoMapper cursoMapper) {
+        this.cursoRepository = cursoRepository;
+        this.cursoMapper = cursoMapper;
     }
 
-    // Obtém um curso pelo ID
-    public Curso getCursoById(Long id) {
-        Optional<Curso> curso = cursoRepository.findById(id);
-        return curso.orElse(null);
+    public List<CursoResponseDTO> getAllCursos() {
+        return cursoRepository.findAll().stream()
+                .map(cursoMapper::toResponseDTO)
+                .collect(Collectors.toList());
     }
 
-    // Cria um novo curso
-    public Curso createCurso(Curso curso) {
-        return cursoRepository.save(curso);
+    public Optional<CursoResponseDTO> getCursoById(Long id) {
+        return cursoRepository.findById(id)
+                .map(cursoMapper::toResponseDTO);
     }
 
-    // Atualiza um curso existente
-    public Curso updateCurso(Long id, Curso curso) {
-        if (cursoRepository.existsById(id)) {
-            curso.setId(id);
-            return cursoRepository.save(curso);
+    @Transactional
+    public CursoResponseDTO createCurso(CursoRequestDTO cursoRequestDTO) {
+        Curso curso = cursoMapper.toEntity(cursoRequestDTO);
+        Curso salvo = cursoRepository.save(curso);
+        return cursoMapper.toResponseDTO(salvo);
+    }
+
+    @Transactional
+    public Optional<CursoResponseDTO> updateCurso(Long id, CursoRequestDTO cursoRequestDTO) {
+        return cursoRepository.findById(id)
+                .map(existingCurso -> {
+                    cursoMapper.updateEntityFromDTO(cursoRequestDTO, existingCurso);
+                    Curso atualizado = cursoRepository.save(existingCurso);
+                    return cursoMapper.toResponseDTO(atualizado);
+                });
+    }
+
+    @Transactional
+    public boolean deleteCurso(Long id) {
+        if (!cursoRepository.existsById(id)) {
+            return false;
         }
-        return null;
-    }
-
-    // Deleta um curso
-    public void deleteCurso(Long id) {
         cursoRepository.deleteById(id);
+        return true;
     }
 }

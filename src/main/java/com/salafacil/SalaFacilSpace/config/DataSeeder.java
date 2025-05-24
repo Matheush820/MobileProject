@@ -1,14 +1,20 @@
 package com.salafacil.SalaFacilSpace.config;
 
-import com.salafacil.SalaFacilSpace.entity.*;
-import com.salafacil.SalaFacilSpace.repository.*;
+import com.salafacil.SalaFacilSpace.entity.Categoria;
+import com.salafacil.SalaFacilSpace.entity.Horario;
+import com.salafacil.SalaFacilSpace.repository.CategoriaRepository;
+import com.salafacil.SalaFacilSpace.repository.CursoRepository;
+import com.salafacil.SalaFacilSpace.repository.HorarioRepository;
+import com.salafacil.SalaFacilSpace.repository.LaboratorioRepository;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalTime;
 import java.util.List;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class DataSeeder {
@@ -20,40 +26,61 @@ public class DataSeeder {
 
     @PostConstruct
     public void seedDatabase() {
+        log.info("🚀 Iniciando DataSeeder...");
+        seedCategorias();
+        seedHorarios();
+        log.info("✅ DataSeeder finalizado com sucesso.");
+    }
+
+    private void seedCategorias() {
         if (categoriaRepository.count() == 0) {
-            System.out.println("DataSeeder foi instanciado!");
+            log.info("📦 Inserindo categorias...");
+            categoriaRepository.saveAll(List.of(
+                    new Categoria(null, "Tecnologia da Informação", "Cursos ligados à área de computação e sistemas."),
+                    new Categoria(null, "Saúde", "Cursos da área da saúde e bem-estar."),
+                    new Categoria(null, "Engenharia", "Cursos voltados para engenharia e construção."),
+                    new Categoria(null, "Ciências Humanas", "Cursos relacionados à área de humanas."),
+                    new Categoria(null, "Ciências Exatas", "Cursos de matemática, física, química e correlatos."),
+                    new Categoria(null, "Ciências Biológicas", "Cursos de biologia, biomedicina, genética e afins.")
+            ));
+            log.info("✅ Categorias inseridas.");
+        } else {
+            log.info("🔸 Categorias já existentes. Seed ignorado.");
+        }
+    }
 
-            // CATEGORIAS
-            Categoria catTI = categoriaRepository.save(new Categoria(null, "Tecnologia da Informação", "Cursos ligados à área de computação e sistemas."));
-            Categoria catSaude = categoriaRepository.save(new Categoria(null, "Saúde", "Cursos da área da saúde e bem-estar."));
-            Categoria catEng = categoriaRepository.save(new Categoria(null, "Engenharia", "Cursos voltados para engenharia e construção."));
-            Categoria catHumanas = categoriaRepository.save(new Categoria(null, "Ciências Humanas", "Cursos relacionados à área de humanas."));
-            Categoria catExatas = categoriaRepository.save(new Categoria(null, "Ciências Exatas", "Cursos de matemática, física, química e correlatos."));
-            Categoria catBiologicas = categoriaRepository.save(new Categoria(null, "Ciências Biológicas", "Cursos de biologia, biomedicina, genética e afins."));
-            System.out.println(">>> DataSeeder.seedDatabase() iniciado!");
-
-            // CURSOS (você pode preencher depois)
-
-            // LABORATÓRIOS (preencher depois)
-
-            // HORÁRIOS
+    private void seedHorarios() {
+        if (horarioRepository.count() == 0) {
+            log.info("📅 Inserindo horários...");
             horarioRepository.saveAll(List.of(
                     // Manhã
-                    new Horario(null, "Segunda-feira", LocalTime.of(7, 30), LocalTime.of(11, 30), "MANHA"),
-                    new Horario(null, "Terça-feira", LocalTime.of(7, 30), LocalTime.of(11, 30), "MANHA"),
-                    new Horario(null, "Quarta-feira", LocalTime.of(7, 30), LocalTime.of(11, 30), "MANHA"),
-                    new Horario(null, "Quinta-feira", LocalTime.of(7, 30), LocalTime.of(11, 30), "MANHA"),
-                    new Horario(null, "Sexta-feira", LocalTime.of(7, 30), LocalTime.of(11, 30), "MANHA"),
+                    criarHorario("Segunda-feira", 7, 30, 11, 30, "MANHA"),
+                    criarHorario("Terça-feira", 7, 30, 11, 30, "MANHA"),
+                    criarHorario("Quarta-feira", 7, 30, 11, 30, "MANHA"),
+                    criarHorario("Quinta-feira", 7, 30, 11, 30, "MANHA"),
+                    criarHorario("Sexta-feira", 7, 30, 11, 30, "MANHA"),
 
                     // Noite
-                    new Horario(null, "Segunda-feira", LocalTime.of(18, 30), LocalTime.of(22, 0), "NOITE"),
-                    new Horario(null, "Terça-feira", LocalTime.of(18, 30), LocalTime.of(22, 0), "NOITE"),
-                    new Horario(null, "Quarta-feira", LocalTime.of(19, 30), LocalTime.of(22, 0), "NOITE"),
-                    new Horario(null, "Quinta-feira", LocalTime.of(19, 30), LocalTime.of(22, 0), "NOITE"),
-                    new Horario(null, "Sexta-feira", LocalTime.of(18, 30), LocalTime.of(22, 0), "NOITE")
+                    criarHorario("Segunda-feira", 18, 30, 22, 0, "NOITE"),
+                    criarHorario("Terça-feira", 18, 30, 22, 0, "NOITE"),
+                    criarHorario("Quarta-feira", 19, 30, 22, 0, "NOITE"),
+                    criarHorario("Quinta-feira", 19, 30, 22, 0, "NOITE"),
+                    criarHorario("Sexta-feira", 18, 30, 22, 0, "NOITE")
             ));
-
-            System.out.println("✅ Dados iniciais inseridos com sucesso.");
+            log.info("✅ Horários inseridos.");
+        } else {
+            log.info("🔸 Horários já existentes. Seed ignorado.");
         }
+    }
+
+    // Método auxiliar pra não repetir código até a eternidade
+    private Horario criarHorario(String dia, int horaInicio, int minutoInicio, int horaFim, int minutoFim, String turno) {
+        return new Horario(
+                null,
+                dia,
+                LocalTime.of(horaInicio, minutoInicio),
+                LocalTime.of(horaFim, minutoFim),
+                turno
+        );
     }
 }
