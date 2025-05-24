@@ -2,107 +2,85 @@ package com.salafacil.SalaFacilSpace.config;
 
 import com.salafacil.SalaFacilSpace.entity.*;
 import com.salafacil.SalaFacilSpace.repository.*;
-import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 
 @Component
 @RequiredArgsConstructor
-public class DataSeeder {
+public class DataSeeder implements CommandLineRunner {
 
     private final CategoriaRepository categoriaRepository;
     private final CursoRepository cursoRepository;
-    private final LaboratorioRepository laboratorioRepository;
     private final HorarioRepository horarioRepository;
+    private final LaboratorioRepository laboratorioRepository;
+    private final ProfessorRepository professorRepository;
+    private final ReservaRepository reservaRepository;
 
-    @PostConstruct
-    public void seedDatabase() {
-        if (categoriaRepository.count() == 0) {
-            System.out.println("DataSeeder foi instanciado!");
+    @Override
+    public void run(String... args) {
 
-            // CATEGORIAS
-            Categoria catTI = categoriaRepository.save(new Categoria(null, "Tecnologia da Informação", "Cursos ligados à área de computação e sistemas."));
-            Categoria catSaude = categoriaRepository.save(new Categoria(null, "Saúde", "Cursos da área da saúde e bem-estar."));
-            Categoria catEng = categoriaRepository.save(new Categoria(null, "Engenharia", "Cursos voltados para engenharia e construção."));
-            Categoria catHumanas = categoriaRepository.save(new Categoria(null, "Ciências Humanas", "Cursos relacionados à área de humanas."));
-            Categoria catExatas = categoriaRepository.save(new Categoria(null, "Ciências Exatas", "Cursos de matemática, física, química e correlatos."));
-            Categoria catBiologicas = categoriaRepository.save(new Categoria(null, "Ciências Biológicas", "Cursos de biologia, biomedicina, genética e afins."));
-            System.out.println(">>> DataSeeder.seedDatabase() iniciado!");
+        // 1. Categorias
+        Categoria tecnologia = categoriaRepository.save(new Categoria(null, "Tecnologia", "Cursos de tecnologia."));
+        Categoria saude = categoriaRepository.save(new Categoria(null, "Saúde", "Cursos da área da saúde."));
+        Categoria engenharia = categoriaRepository.save(new Categoria(null, "Engenharia", "Engenharia e afins."));
+        Categoria humanas = categoriaRepository.save(new Categoria(null, "Ciências Humanas", "Cursos da área de humanas."));
+        Categoria exatas = categoriaRepository.save(new Categoria(null, "Ciências Exatas", "Cursos da área de exatas."));
+        Categoria biociencias = categoriaRepository.save(new Categoria(null, "Biociências", "Cursos da área biológica."));
 
-            // CURSOS
-            cursoRepository.saveAll(List.of(
-                // TI
-                new Curso(null, "Análise e Desenvolvimento de Sistemas", catTI),
-                new Curso(null, "Engenharia de Software", catTI),
-                new Curso(null, "Ciência da Computação", catTI),
+        // 2. Cursos (sem horários ainda)
+        Curso sistemas = cursoRepository.save(Curso.builder()
+                .nome("Sistemas de Informação")
+                .categoria(tecnologia)
+                .build());
 
-                // Saúde
-                new Curso(null, "Enfermagem", catSaude),
-                new Curso(null, "Biomedicina", catSaude),
-                new Curso(null, "Fisioterapia", catSaude),
+        Curso enfermagem = cursoRepository.save(Curso.builder()
+                .nome("Enfermagem")
+                .categoria(saude)
+                .build());
 
-                // Engenharia
-                new Curso(null, "Engenharia Civil", catEng),
-                new Curso(null, "Engenharia Mecânica", catEng),
-                new Curso(null, "Engenharia Elétrica", catEng),
+        Curso engenhariaCivil = cursoRepository.save(Curso.builder()
+                .nome("Engenharia Civil")
+                .categoria(engenharia)
+                .build());
 
-                // Humanas
-                new Curso(null, "Psicologia", catHumanas),
-                new Curso(null, "História", catHumanas),
-                new Curso(null, "Pedagogia", catHumanas),
+        // 3. Horários (já com cursos associados)
+        Horario horario1 = horarioRepository.save(new Horario(null, LocalTime.of(8, 0), LocalTime.of(10, 0), "MANHÃ", sistemas));
+        Horario horario2 = horarioRepository.save(new Horario(null, LocalTime.of(10, 15), LocalTime.of(12, 15), "MANHÃ", sistemas));
+        Horario horario3 = horarioRepository.save(new Horario(null, LocalTime.of(14, 0), LocalTime.of(16, 0), "TARDE", enfermagem));
+        Horario horario4 = horarioRepository.save(new Horario(null, LocalTime.of(16, 15), LocalTime.of(18, 15), "TARDE", enfermagem));
+        Horario horario5 = horarioRepository.save(new Horario(null, LocalTime.of(19, 0), LocalTime.of(21, 0), "NOITE", sistemas));
 
-                // Exatas
-                new Curso(null, "Matemática", catExatas),
-                new Curso(null, "Física", catExatas),
-                new Curso(null, "Química", catExatas),
+        // Duplicar horários para engenharia civil (já que não existe mais ManyToMany)
+        Horario horario6 = horarioRepository.save(new Horario(null, LocalTime.of(8, 0), LocalTime.of(10, 0), "MANHÃ", engenhariaCivil));
+        Horario horario7 = horarioRepository.save(new Horario(null, LocalTime.of(14, 0), LocalTime.of(16, 0), "TARDE", engenhariaCivil));
+        Horario horario8 = horarioRepository.save(new Horario(null, LocalTime.of(19, 0), LocalTime.of(21, 0), "NOITE", engenhariaCivil));
 
-                // Biológicas
-                new Curso(null, "Biologia", catBiologicas),
-                new Curso(null, "Genética", catBiologicas),
-                new Curso(null, "Biomedicina Avançada", catBiologicas)
-            ));
+        // 4. Laboratórios
+        laboratorioRepository.saveAll(List.of(
+                new Laboratorio(null, "Laboratório de Tecnologia da Informação 01", "Bloco A", "A", "1", "101", tecnologia),
+                new Laboratorio(null, "Laboratório de Tecnologia da Informação 02", "Bloco A", "A", "2", "102", tecnologia),
+                new Laboratorio(null, "Laboratório de Saúde 01", "Bloco B", "B", "1", "201", saude),
+                new Laboratorio(null, "Laboratório de Saúde 02", "Bloco B", "B", "2", "202", saude),
+                new Laboratorio(null, "Laboratório de Anatomia", "Bloco B", "B", "3", "203", saude),
+                new Laboratorio(null, "Laboratório de Engenharia Civil", "Bloco C", "C", "1", "301", engenharia),
+                new Laboratorio(null, "Laboratório de Engenharia Elétrica", "Bloco C", "C", "2", "302", engenharia),
+                new Laboratorio(null, "Laboratório de Engenharia Mecânica", "Bloco C", "C", "3", "303", engenharia),
+                new Laboratorio(null, "Laboratório Multidisciplinar", "Bloco D", "D", "1", "401", tecnologia),
+                new Laboratorio(null, "Laboratório de Psicologia", "Bloco B", "B", "1", "333", humanas),
+                new Laboratorio(null, "Laboratório de Sociologia", "Bloco A", "A", "2", "171", humanas),
+                new Laboratorio(null, "Laboratório de Matemática Aplicada", "Bloco A", "A", "1", "222", exatas),
+                new Laboratorio(null, "Laboratório de Física Experimental", "Bloco A", "A", "2", "255", exatas),
+                new Laboratorio(null, "Laboratório de Química", "Bloco B", "B", "3", "412", exatas),
+                new Laboratorio(null, "Laboratório de Biologia Molecular", "Bloco B", "B", "1", "10", biociencias),
+                new Laboratorio(null, "Laboratório de Genética", "Bloco A", "B", "2", "123", biociencias),
+                new Laboratorio(null, "Laboratório de Biomedicina", "Bloco B", "A", "3", "321", biociencias)
+        ));
 
-            // LABORATÓRIOS com associação a Categoria
-            laboratorioRepository.saveAll(List.of(
-                // TI (Categoria: Tecnologia da Informação)
-                new Laboratorio(null, "Laboratório de Tecnologia da Informação 01", "Bloco A", "A", "1", "101", catTI),
-                new Laboratorio(null, "Laboratório de Tecnologia da Informação 02", "Bloco A", "A", "2", "102", catTI),
-
-                // Saúde (Categoria: Saúde)
-                new Laboratorio(null, "Laboratório de Saúde 01", "Bloco B", "B", "1", "201", catSaude),
-                new Laboratorio(null, "Laboratório de Saúde 02", "Bloco B", "B", "2", "202", catSaude),
-                new Laboratorio(null, "Laboratório de Anatomia", "Bloco B", "B", "3", "203", catSaude),
-
-                // Engenharia (Categoria: Engenharia)
-                new Laboratorio(null, "Laboratório de Engenharia Civil", "Bloco C", "C", "1", "301", catEng),
-                new Laboratorio(null, "Laboratório de Engenharia Elétrica", "Bloco C", "C", "2", "302", catEng),
-                new Laboratorio(null, "Laboratório de Engenharia Mecânica", "Bloco C", "C", "3", "303", catEng),
-
-                // Multidisciplinar (associado a TI, ajuste se preferir outra)
-                new Laboratorio(null, "Laboratório Multidisciplinar", "Bloco D", "D", "1", "401", catTI)
-            ));
-
-            // HORÁRIOS
-            horarioRepository.saveAll(List.of(
-                // Diurnos
-                new Horario(null, "Segunda-feira", LocalTime.of(7, 30), LocalTime.of(11, 30)),
-                new Horario(null, "Terça-feira", LocalTime.of(7, 30), LocalTime.of(11, 30)),
-                new Horario(null, "Quarta-feira", LocalTime.of(7, 30), LocalTime.of(11, 30)),
-                new Horario(null, "Quinta-feira", LocalTime.of(7, 30), LocalTime.of(11, 30)),
-                new Horario(null, "Sexta-feira", LocalTime.of(7, 30), LocalTime.of(11, 30)),
-
-                // Noturnos
-                new Horario(null, "Segunda-feira", LocalTime.of(18, 30), LocalTime.of(22, 0)),
-                new Horario(null, "Terça-feira", LocalTime.of(18, 30), LocalTime.of(22, 0)),
-                new Horario(null, "Quarta-feira", LocalTime.of(19, 30), LocalTime.of(22, 0)),
-                new Horario(null, "Quinta-feira", LocalTime.of(19, 30), LocalTime.of(22, 0)),
-                new Horario(null, "Sexta-feira", LocalTime.of(18, 30), LocalTime.of(22, 0))
-            ));
-
-            System.out.println("✅ Dados iniciais inseridos com sucesso.");
-        }
+        System.out.println("Dados inseridos com sucesso.");
     }
 }

@@ -79,9 +79,20 @@ public class ReservaService {
                 reservaDTO.getData(),
                 reservaDTO.getLaboratorioId(),
                 reservaDTO.getHorarioId())) {
-            throw new IllegalArgumentException("Já existe reserva para este laboratório no horário selecionado");
-        }
+            Reserva reservaExistenteMesmoHorario = reservaRepository
+                    .findByDataAndLaboratorioIdAndHorarioId(
+                            reservaDTO.getData(),
+                            reservaDTO.getLaboratorioId(),
+                            reservaDTO.getHorarioId())
+                    .stream()
+                    .filter(r -> !r.getId().equals(id))
+                    .findAny()
+                    .orElse(null);
 
+            if (reservaExistenteMesmoHorario != null) {
+                throw new IllegalArgumentException("Já existe reserva para este laboratório no horário selecionado");
+            }
+        }
 
         Professor professor = professorRepository.findById(reservaDTO.getProfessorId())
                 .orElseThrow(() -> new ResourceNotFoundException("Professor não encontrado"));

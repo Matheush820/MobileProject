@@ -1,9 +1,12 @@
 package com.salafacil.SalaFacilSpace.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;
+
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -61,5 +64,27 @@ public class HorarioController {
         // Se o horário foi deletado com sucesso, retorna status 204 (NO CONTENT). Se não, retorna 404 (NOT FOUND)
         return deletado ? ResponseEntity.noContent().build()
                         : ResponseEntity.notFound().build();
+    }
+    
+    @GetMapping("/disponiveis")
+    public ResponseEntity<List<Horario>> listarHorariosDisponiveisPorDataTurnoECursoELab(
+            @RequestParam("data") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate data,
+            @RequestParam("turno") String turno,
+            @RequestParam("cursoId") Long cursoId,
+            @RequestParam("laboratorioId") Long laboratorioId) {
+
+        List<Horario> horarios = horarioService.buscarHorariosDisponiveis(data, turno, cursoId, laboratorioId);
+
+        if (horarios.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
+
+        return ResponseEntity.ok(horarios);
+    }
+
+    @GetMapping("/curso/{cursoId}")
+    public ResponseEntity<List<Horario>> listarHorariosPorCurso(@PathVariable Long cursoId) {
+        List<Horario> horarios = horarioService.listarHorariosPorCurso(cursoId);
+        return ResponseEntity.ok(horarios);
     }
 }

@@ -43,14 +43,18 @@ public class ProfessorService {
     }
 
     public void resetarSenhaPorEmail(RedefinirSenhaDTO dto) {
+        if (dto.getNovaSenha() == null || dto.getNovaSenha().isBlank()) {
+            throw new IllegalArgumentException("A nova senha não pode estar vazia.");
+        }
+
         Professor professor = professorRepository.findByEmail(dto.getEmail())
             .orElseThrow(() -> new ProfessorNotFoundException("Email não encontrado: " + dto.getEmail()));
 
-        professor.setSenha(dto.getNovaSenha());
+        String senhaHash = passwordService.encodePassword(dto.getNovaSenha());
+        professor.setSenha(senhaHash);
+
         professorRepository.save(professor);
     }
-
-
 
     
     public void deletar(Long id) {

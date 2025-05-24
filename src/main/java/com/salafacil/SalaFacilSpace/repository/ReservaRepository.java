@@ -18,4 +18,10 @@ public interface ReservaRepository extends JpaRepository<Reserva, Long> {
         WHERE FUNCTION('TIMESTAMP', r.data, r.horario.horaFim) < :dataHora
     """)
     List<Reserva> findByDataHoraFimBefore(@Param("dataHora") LocalDateTime dataHora);
+    List<Reserva> findByDataAndLaboratorioId(LocalDate data, Long laboratorioId);
+    List<Reserva> findByDataAndLaboratorioIdAndCursoId(LocalDate data, Long laboratorioId, Long cursoId);
+    List<Reserva> findByDataAndLaboratorioIdAndHorarioId(LocalDate data, Long laboratorioId, Long horarioId);
+
+    List<Reserva> findByDataAndCursoId(LocalDate data, Long cursoId);
+
 }
