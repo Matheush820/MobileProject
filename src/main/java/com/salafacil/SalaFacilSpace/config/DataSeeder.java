@@ -4,6 +4,7 @@ import com.salafacil.SalaFacilSpace.entity.*;
 import com.salafacil.SalaFacilSpace.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
@@ -23,64 +24,75 @@ public class DataSeeder implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
+        if (categoriaRepository.count() > 0 || cursoRepository.count() > 0 || horarioRepository.count() > 0 ||
+            laboratorioRepository.count() > 0 || professorRepository.count() > 0 || reservaRepository.count() > 0) {
+            return; // Já existem dados, então não popula novamente
+        }
 
         // 1. Categorias
-        Categoria tecnologia = categoriaRepository.save(new Categoria(null, "Tecnologia", "Cursos de tecnologia."));
-        Categoria saude = categoriaRepository.save(new Categoria(null, "Saúde", "Cursos da área da saúde."));
-        Categoria engenharia = categoriaRepository.save(new Categoria(null, "Engenharia", "Engenharia e afins."));
-        Categoria humanas = categoriaRepository.save(new Categoria(null, "Ciências Humanas", "Cursos da área de humanas."));
-        Categoria exatas = categoriaRepository.save(new Categoria(null, "Ciências Exatas", "Cursos da área de exatas."));
-        Categoria biociencias = categoriaRepository.save(new Categoria(null, "Biociências", "Cursos da área biológica."));
+        Categoria informatica = categoriaRepository.save(new Categoria(null, "Informática", "Laboratórios de informática em geral."));
+        Categoria saude = categoriaRepository.save(new Categoria(null, "Saúde", "Laboratórios de Saúde"));
+        Categoria engenharia = categoriaRepository.save(new Categoria(null, "Engenharia", "Engenharia civil, elétrica, mecânica e afins."));
+        Categoria biologia = categoriaRepository.save(new Categoria(null, "Ciências Biológicas", "Categoria sobre Biologia"));
+        Categoria humanas = categoriaRepository.save(new Categoria(null, "Humanas", "Categorias de Humanas"));
+        Categoria cienciasExatas = categoriaRepository.save(new Categoria(null, "Ciências Exatas", "Categoria para Matemática, Fisica e Quimica."));
+        Categoria cienciasHumanas = categoriaRepository.save(new Categoria(null, "Ciências Humanas", "Categoria para Historia, geografia e Filosofia."));
 
-        // 2. Cursos (sem horários ainda)
-        Curso sistemas = cursoRepository.save(Curso.builder()
-                .nome("Sistemas de Informação")
-                .categoria(tecnologia)
-                .build());
+        // 2. Cursos
+        Curso cursoSelecionado = cursoRepository.saveAll(List.of(
+            Curso.builder().nome("Farmácia").periodo("Integral").build(),
+            Curso.builder().nome("Ciência da Computação").periodo("Noturno").build(),
+            Curso.builder().nome("Medicina").periodo("Noturno").build(),
+            Curso.builder().nome("Engenharia Elétrica").periodo("Integral").build(),
+            Curso.builder().nome("Engenharia Mecatrônica").periodo("Integral").build(),
+            Curso.builder().nome("Fisioterapia").periodo("Noturno").build(),
+            Curso.builder().nome("Engenharia de Produção").periodo("Noturno").build(),
+            Curso.builder().nome("Análise e Desenvolvimento de Sistemas").periodo("Noturno").build(),
+            Curso.builder().nome("Licenciatura em Matemática").periodo("Noturno").build(),
+            Curso.builder().nome("Licenciatura em História").periodo("Noturno").build()
+        )).get(0);
 
-        Curso enfermagem = cursoRepository.save(Curso.builder()
-                .nome("Enfermagem")
-                .categoria(saude)
-                .build());
+        // 3. Horários - Segunda a Sexta com nome completo
+        Horario horarioSelecionado = horarioRepository.saveAll(List.of(
+            // SEGUNDA-FEIRA
+            Horario.builder().diaSemana("SEGUNDA-FEIRA").horaInicio(LocalTime.of(7, 0)).horaFim(LocalTime.of(8, 40)).turno("MANHÃ").build(),
+            Horario.builder().diaSemana("SEGUNDA-FEIRA").horaInicio(LocalTime.of(8, 50)).horaFim(LocalTime.of(10, 30)).turno("MANHÃ").build(),
+            Horario.builder().diaSemana("SEGUNDA-FEIRA").horaInicio(LocalTime.of(10, 40)).horaFim(LocalTime.of(12, 20)).turno("MANHÃ").build(),
 
-        Curso engenhariaCivil = cursoRepository.save(Curso.builder()
-                .nome("Engenharia Civil")
-                .categoria(engenharia)
-                .build());
+            // TERÇA-FEIRA
+            Horario.builder().diaSemana("TERÇA-FEIRA").horaInicio(LocalTime.of(13, 0)).horaFim(LocalTime.of(14, 40)).turno("TARDE").build(),
+            Horario.builder().diaSemana("TERÇA-FEIRA").horaInicio(LocalTime.of(14, 50)).horaFim(LocalTime.of(16, 30)).turno("TARDE").build(),
+            Horario.builder().diaSemana("TERÇA-FEIRA").horaInicio(LocalTime.of(16, 40)).horaFim(LocalTime.of(18, 20)).turno("TARDE").build(),
 
-        // 3. Horários (já com cursos associados)
-        Horario horario1 = horarioRepository.save(new Horario(null, LocalTime.of(8, 0), LocalTime.of(10, 0), "MANHÃ", sistemas));
-        Horario horario2 = horarioRepository.save(new Horario(null, LocalTime.of(10, 15), LocalTime.of(12, 15), "MANHÃ", sistemas));
-        Horario horario3 = horarioRepository.save(new Horario(null, LocalTime.of(14, 0), LocalTime.of(16, 0), "TARDE", enfermagem));
-        Horario horario4 = horarioRepository.save(new Horario(null, LocalTime.of(16, 15), LocalTime.of(18, 15), "TARDE", enfermagem));
-        Horario horario5 = horarioRepository.save(new Horario(null, LocalTime.of(19, 0), LocalTime.of(21, 0), "NOITE", sistemas));
+            // QUARTA-FEIRA
+            Horario.builder().diaSemana("QUARTA-FEIRA").horaInicio(LocalTime.of(18, 30)).horaFim(LocalTime.of(20, 10)).turno("NOITE").build(),
+            Horario.builder().diaSemana("QUARTA-FEIRA").horaInicio(LocalTime.of(20, 20)).horaFim(LocalTime.of(22, 0)).turno("NOITE").build(),
 
-        // Duplicar horários para engenharia civil (já que não existe mais ManyToMany)
-        Horario horario6 = horarioRepository.save(new Horario(null, LocalTime.of(8, 0), LocalTime.of(10, 0), "MANHÃ", engenhariaCivil));
-        Horario horario7 = horarioRepository.save(new Horario(null, LocalTime.of(14, 0), LocalTime.of(16, 0), "TARDE", engenhariaCivil));
-        Horario horario8 = horarioRepository.save(new Horario(null, LocalTime.of(19, 0), LocalTime.of(21, 0), "NOITE", engenhariaCivil));
+            // QUINTA-FEIRA
+            Horario.builder().diaSemana("QUINTA-FEIRA").horaInicio(LocalTime.of(7, 0)).horaFim(LocalTime.of(8, 40)).turno("MANHÃ").build(),
+            Horario.builder().diaSemana("QUINTA-FEIRA").horaInicio(LocalTime.of(8, 50)).horaFim(LocalTime.of(10, 30)).turno("MANHÃ").build(),
+
+            // SEXTA-FEIRA
+            Horario.builder().diaSemana("SEXTA-FEIRA").horaInicio(LocalTime.of(13, 0)).horaFim(LocalTime.of(14, 40)).turno("TARDE").build(),
+            Horario.builder().diaSemana("SEXTA-FEIRA").horaInicio(LocalTime.of(14, 50)).horaFim(LocalTime.of(16, 30)).turno("TARDE").build()
+        )).get(0);
 
         // 4. Laboratórios
-        laboratorioRepository.saveAll(List.of(
-                new Laboratorio(null, "Laboratório de Tecnologia da Informação 01", "Bloco A", "A", "1", "101", tecnologia),
-                new Laboratorio(null, "Laboratório de Tecnologia da Informação 02", "Bloco A", "A", "2", "102", tecnologia),
-                new Laboratorio(null, "Laboratório de Saúde 01", "Bloco B", "B", "1", "201", saude),
-                new Laboratorio(null, "Laboratório de Saúde 02", "Bloco B", "B", "2", "202", saude),
-                new Laboratorio(null, "Laboratório de Anatomia", "Bloco B", "B", "3", "203", saude),
-                new Laboratorio(null, "Laboratório de Engenharia Civil", "Bloco C", "C", "1", "301", engenharia),
-                new Laboratorio(null, "Laboratório de Engenharia Elétrica", "Bloco C", "C", "2", "302", engenharia),
-                new Laboratorio(null, "Laboratório de Engenharia Mecânica", "Bloco C", "C", "3", "303", engenharia),
-                new Laboratorio(null, "Laboratório Multidisciplinar", "Bloco D", "D", "1", "401", tecnologia),
-                new Laboratorio(null, "Laboratório de Psicologia", "Bloco B", "B", "1", "333", humanas),
-                new Laboratorio(null, "Laboratório de Sociologia", "Bloco A", "A", "2", "171", humanas),
-                new Laboratorio(null, "Laboratório de Matemática Aplicada", "Bloco A", "A", "1", "222", exatas),
-                new Laboratorio(null, "Laboratório de Física Experimental", "Bloco A", "A", "2", "255", exatas),
-                new Laboratorio(null, "Laboratório de Química", "Bloco B", "B", "3", "412", exatas),
-                new Laboratorio(null, "Laboratório de Biologia Molecular", "Bloco B", "B", "1", "10", biociencias),
-                new Laboratorio(null, "Laboratório de Genética", "Bloco A", "B", "2", "123", biociencias),
-                new Laboratorio(null, "Laboratório de Biomedicina", "Bloco B", "A", "3", "321", biociencias)
-        ));
+        Laboratorio laboratorioSelecionado = laboratorioRepository.saveAll(List.of(
+            new Laboratorio(null, "Laboratório de Informática I", "Bloco B - Sala 101", "B", "1", "101", informatica),
+            new Laboratorio(null, "Laboratório de Informática II", "Bloco B - Sala 102", "B", "1", "102", informatica),
+            new Laboratorio(null, "Laboratório de Saúde", "Bloco A - Sala 201", "C", "2", "201", saude),
+            new Laboratorio(null, "Laboratório de Medicina Veterinaria", "Bloco A - Sala 202", "C", "2", "201", saude),
+            new Laboratorio(null, "Laboratório de Engenharia", "Bloco A - Sala 202", "C", "2", "202", engenharia),
+            new Laboratorio(null, "Laboratório de Engenharia Mecânica", "Bloco B - Sala 303", "D", "3", "303", engenharia),
+            new Laboratorio(null, "Laboratório de Biologia I", "Bloco A - Sala 305", "D", "3", "305", biologia),
+            new Laboratorio(null, "Laboratório de Farmácia", "Bloco B - Sala 345", "B", "3", "305", saude),
+            new Laboratorio(null, "Laboratório de Biologia II", "Bloco A - Sala 310", "A", "3", "305", biologia),
+            new Laboratorio(null, "Laboratório de Humanas I", "Bloco A - Sala 401", "A", "4", "401", humanas),
+            new Laboratorio(null, "Laboratório de Humanas II", "Bloco A - Sala 402", "A", "4", "401", humanas)
 
-        System.out.println("Dados inseridos com sucesso.");
+        )).get(0);
+
+       
     }
 }

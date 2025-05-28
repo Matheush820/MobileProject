@@ -2,6 +2,7 @@ package com.salafacil.SalaFacilSpace.config;
 
 import jakarta.servlet.http.HttpServletResponse;
 import com.salafacil.SalaFacilSpace.services.MyUserDetailsService;
+import com.salafacil.SalaFacilSpace.services.ProfessorUserDetailsService;
 import com.salafacil.SalaFacilSpace.services.TokenService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -34,33 +35,35 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
 
-    	String path = request.getRequestURI();
-
-        System.out.println("Ate aqui chegou");
-
-    	
-        if (path.startsWith("/auth")
-        	    || path.startsWith("/swagger-ui")
-        	    || path.equals("/swagger-ui.html")
-        	    || path.startsWith("/swagger-resources")
-        	    || path.equals("/v3/api-docs") 
-        	    || path.startsWith("/v3/api-docs/")
-        	    || path.startsWith("/webjars")
-        	    || path.equals("/")) {
-        	    
-        	    filterChain.doFilter(request, response);
-        	    return;
-        	}
-        System.out.println("Esperando algo");
-
+        String path = request.getRequestURI();
         System.out.println("Interceptando requisição: " + path);
 
+        // Ignorar rotas públicas
+        if (path.startsWith("/auth")
+                || path.startsWith("/swagger-ui")
+                || path.equals("/swagger-ui.html")
+                || path.equals("/auth/login")
+                || path.startsWith("/swagger-resources")
+                || path.equals("/v3/api-docs")
+                || path.startsWith("/v3/api-docs/")
+                || path.startsWith("/webjars")
+                || path.equals("/")
+                || (path.equals("/api/professores") && request.getMethod().equals("POST"))
+                || (path.equals("/api/professores/resetar-senha") && request.getMethod().equals("PUT"))
+        ) {
+            System.out.println("Rota pública, liberando sem filtro JWT");
+            filterChain.doFilter(request, response);
+            return;
+        }
 
         String token = obterToken(request);
 
         if (token != null && tokenService.validarToken(token)) {
             try {
+            	log.info("Token recebido: {}", token);
                 String username = tokenService.obterUsernameDoToken(token);
+                log.info("Usuário extraído do token: {}", username);
+
                 var usuario = userDetailsService.loadUserByUsername(username);
 
                 var authentication = new UsernamePasswordAuthenticationToken(
@@ -74,10 +77,16 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
             } catch (Exception e) {
                 log.warn("Falha ao processar token: Token inválido ou erro ao validar o token", e);
+                // Responde 401, mas cuidado para não quebrar o fluxo
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                 response.getWriter().write("Token inválido ou erro na autenticação");
                 return;
             }
+        } else if (token == null) {
+            // Não autenticado, deixa o Spring Security lidar com a resposta de falta de autenticação
+            // Ou seja, NÃO bloqueia aqui com status e retorno manual
+            // Apenas não autentica e deixa seguir
+            System.out.println("Token não fornecido, não autenticado");
         }
 
         filterChain.doFilter(request, response);

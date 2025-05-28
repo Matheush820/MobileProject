@@ -5,6 +5,8 @@ import com.salafacil.SalaFacilSpace.services.TokenService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -43,15 +45,23 @@ public class SecurityConfig {
                     new AntPathRequestMatcher("/v3/api-docs/"),
                     new AntPathRequestMatcher("/swagger-resources/**"),
                     new AntPathRequestMatcher("/webjars/**"),
-                    
                     // 👇 Aqui estão as permissões novas
                     new AntPathRequestMatcher("/api/professores", "POST"),
                     new AntPathRequestMatcher("/api/professores/resetar-senha", "PUT")
                 ).permitAll()
                 .anyRequest().authenticated()
             )
+            .authenticationProvider(authenticationProvider()) // <-- adiciona o AuthenticationProvider configurado
             .addFilterBefore(jwtAuthFilter(), UsernamePasswordAuthenticationFilter.class)
             .build();
+    }
+
+    @Bean
+    public AuthenticationProvider authenticationProvider() {
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        provider.setUserDetailsService(userDetailsService);
+        provider.setPasswordEncoder(passwordEncoder());
+        return provider;
     }
 
     @Bean
@@ -63,7 +73,7 @@ public class SecurityConfig {
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception {
         return authConfig.getAuthenticationManager();
     }
-    
+
     @Bean
     public BCryptPasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();

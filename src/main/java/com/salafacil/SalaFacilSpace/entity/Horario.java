@@ -19,21 +19,20 @@ import java.util.Set;
 @Table(name = "horario")
 public class Horario {
     
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+	  @Id
+	    @GeneratedValue(strategy = GenerationType.IDENTITY)
+	    private Long id;
 
-    @NotNull(message = "Hora de início é obrigatória")
-    private LocalTime horaInicio;
+	    @NotBlank(message = "Dia da semana é obrigatório")
+	    private String diaSemana; // Exemplo: SEGUNDA, TERÇA, ...
 
-    @NotNull(message = "Hora de fim é obrigatória")
-    private LocalTime horaFim;
-    
-    @NotBlank(message = "Turno é obrigatório")
-    private String turno; // Ex.: MANHA, TARDE, NOITE
-    
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "curso_id")
-    private Curso curso;
+	    @NotNull(message = "Hora de início é obrigatória")
+	    private LocalTime horaInicio;
+
+	    @NotNull(message = "Hora de fim é obrigatória")
+	    private LocalTime horaFim;
+
+	    @NotBlank(message = "Turno é obrigatório")
+	    private String turno; // MANHA, TARDE, NOITE
 
 }

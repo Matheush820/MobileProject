@@ -18,18 +18,15 @@ import lombok.NoArgsConstructor;
 @Table(name = "curso")
 public class Curso {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+	 @Id
+	    @GeneratedValue(strategy = GenerationType.IDENTITY)
+	    private Long id;
 
-    @NotBlank(message = "Nome do curso é obrigatório")
-    @Size(max = 100, message = "Nome do curso deve ter no máximo 100 caracteres")
-    private String nome;
+	    @NotBlank(message = "Nome do curso é obrigatório")
+	    @Size(max = 100, message = "Nome do curso deve ter no máximo 100 caracteres")
+	    private String nome;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "categoria_id", nullable = false)
-    private Categoria categoria;
-    
-    @OneToMany(mappedBy = "curso", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<Horario> horarios;
+	    @NotBlank(message = "Período é obrigatório")
+	    @Size(max = 50, message = "Período deve ter no máximo 50 caracteres")
+	    private String periodo;
 }
