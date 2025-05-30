@@ -2,6 +2,7 @@ package com.salafacil.SalaFacilSpace.controller;
 
 import com.salafacil.SalaFacilSpace.dto.LoginDTO;
 import com.salafacil.SalaFacilSpace.dto.TokenDTO;
+import com.salafacil.SalaFacilSpace.services.ProfessorService;
 import com.salafacil.SalaFacilSpace.services.TokenService;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
@@ -22,22 +23,17 @@ public class AuthController {
 
     private final AuthenticationManager authManager;
     private final TokenService tokenService;
+    private final ProfessorService professorService; 
 
-    // Injeção de dependência via construtor: melhora testabilidade e clareza
-    public AuthController(AuthenticationManager authManager, TokenService tokenService) {
+    public AuthController(AuthenticationManager authManager, TokenService tokenService, ProfessorService professorService) {
         this.authManager = authManager;
         this.tokenService = tokenService;
+        this.professorService = professorService;
     }
 
-    /**
-     * Endpoint para autenticação do usuário.
-     * @param login Dados de login validados (email e senha).
-     * @return Token JWT em caso de sucesso.
-     */
     @PostMapping("/login")
     public ResponseEntity<TokenDTO> login(@RequestBody @Valid LoginDTO login) {
         try {
-            // Cria token de autenticação do Spring Security
             UsernamePasswordAuthenticationToken authToken =
                     new UsernamePasswordAuthenticationToken(login.getEmail(), login.getSenha());
 
@@ -45,18 +41,21 @@ public class AuthController {
 
             UserDetails userDetails = (UserDetails) auth.getPrincipal();
 
-            // Gera token JWT com dados do usuário autenticado
             String token = tokenService.gerarToken(userDetails);
+
+            // Aqui você pega o professorId pelo email (que vem no userDetails.getUsername())
+            Long professorId = professorService.buscarProfessorIdPorEmail(userDetails.getUsername());
 
             logger.info("Usuário {} autenticado com sucesso", login.getEmail());
 
-            return ResponseEntity.ok(new TokenDTO(token));
+            // Agora retorna token + professorId
+            return ResponseEntity.ok(new TokenDTO(token, professorId));
         } catch (BadCredentialsException ex) {
             logger.warn("Falha na autenticação do usuário {}: credenciais inválidas", login.getEmail());
-            return ResponseEntity.status(401).build(); // Unauthorized
+            return ResponseEntity.status(401).build();
         } catch (Exception ex) {
             logger.error("Erro inesperado durante autenticação do usuário {}", login.getEmail(), ex);
-            return ResponseEntity.status(500).build(); // Internal Server Error
+            return ResponseEntity.status(500).build();
         }
     }
 }

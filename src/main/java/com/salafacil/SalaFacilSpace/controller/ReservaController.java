@@ -1,6 +1,9 @@
 package com.salafacil.SalaFacilSpace.controller;
 
 import com.salafacil.SalaFacilSpace.dto.ReservaDTO;
+import com.salafacil.SalaFacilSpace.dto.ReservaResponseDTO;
+import com.salafacil.SalaFacilSpace.entity.Reserva;
+import com.salafacil.SalaFacilSpace.repository.ReservaRepository;
 import com.salafacil.SalaFacilSpace.services.ReservaService;
 
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -11,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @SecurityRequirement(name = "bearerAuth")
 @RestController
@@ -19,6 +23,7 @@ import java.util.List;
 public class ReservaController {
 
     private final ReservaService reservaService;
+    private final ReservaRepository reservaRepository;
 
     // Endpoint para criar uma nova reserva
     @PostMapping
@@ -34,11 +39,14 @@ public class ReservaController {
         return ResponseEntity.ok(reserva);
     }
 
-    // ✅ NOVO: Endpoint para listar todas as reservas
+    // Endpoint para listar todas as reservas (com nome do professor no DTO de resposta)
     @GetMapping
-    public ResponseEntity<List<ReservaDTO>> listarTodasReservas() {
-        List<ReservaDTO> reservas = reservaService.listarTodasReservas();
-        return ResponseEntity.ok(reservas);
+    public ResponseEntity<List<ReservaResponseDTO>> listarReservas() {
+        List<Reserva> reservas = reservaRepository.findAll();
+        List<ReservaResponseDTO> dtos = reservas.stream()
+                .map(ReservaResponseDTO::new)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(dtos);
     }
 
     // Endpoint para atualizar uma reserva existente
