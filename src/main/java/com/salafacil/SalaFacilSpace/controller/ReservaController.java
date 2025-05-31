@@ -49,6 +49,16 @@ public class ReservaController {
         return ResponseEntity.ok(dtos);
     }
 
+    // 🚀 Endpoint para listar reservas de um professor específico
+    @GetMapping("/professor/{professorId}")
+    public ResponseEntity<List<ReservaResponseDTO>> listarReservasPorProfessor(@PathVariable Long professorId) {
+        List<Reserva> reservas = reservaRepository.findByProfessorId(professorId);
+        List<ReservaResponseDTO> dtos = reservas.stream()
+                .map(ReservaResponseDTO::new)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(dtos);
+    }
+
     // Endpoint para atualizar uma reserva existente
     @PutMapping("/{id}")
     public ResponseEntity<ReservaDTO> atualizarReserva(@PathVariable Long id, @RequestBody @Valid ReservaDTO reservaDTO) {
